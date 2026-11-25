@@ -11,6 +11,7 @@ import {
   Wand2,
 } from "lucide-react";
 import { BeforeAfterSlider } from "@/components/BeforeAfterSlider";
+import { BackgroundRemoverStudio } from "@/components/BackgroundRemoverStudio";
 import { PromptCommandBar } from "@/components/PromptCommandBar";
 
 const DEMO_BEFORE_SVG =
@@ -132,13 +133,13 @@ export default function HomePage() {
               </div>
 
               <div className="mt-6 flex flex-wrap items-center gap-3.5">
-                <Link
-                  href="/tools/background-remover"
+                <a
+                  href="#studio"
                   className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 via-fuchsia-600 to-cyan-600 px-6 py-3.5 text-sm font-semibold text-white shadow-md hover:opacity-95 transition-opacity"
                 >
                   Try Background Remover
                   <ArrowRight className="h-4 w-4" />
-                </Link>
+                </a>
                 <a
                   href="#tools"
                   className="inline-flex items-center gap-2 rounded-xl border border-zinc-200 dark:border-zinc-800 px-5 py-3.5 text-sm font-semibold hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors"
@@ -170,6 +171,11 @@ export default function HomePage() {
             </div>
           </div>
         </div>
+      </section>
+
+      {/* Inline Background Remover Studio */}
+      <section id="studio" className="scroll-mt-20">
+        <BackgroundRemoverStudio />
       </section>
 
       {/* Tool Cards */}
