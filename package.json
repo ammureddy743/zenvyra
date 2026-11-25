@@ -1,0 +1,11 @@
+{
+  "name": "zenvyra",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Zenvyra AI Photo-Editing Platform",
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "build:frontend": "npm --prefix frontend run build"
+  }
+}

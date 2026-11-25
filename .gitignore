@@ -1,0 +1,22 @@
+# Dependencies & Virtual Environments
+node_modules/
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+
+# Next.js build & cache
+frontend/.next/
+frontend/out/
+
+# Environment variables (keep .env.example)
+.env
+.env.local
+.env.*.local
+frontend/.env*
+backend/.env
+
+# Temporary uploads & OS files
+backend/tmp_uploads/
+.DS_Store
+Thumbs.db
