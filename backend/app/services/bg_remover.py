@@ -143,7 +143,7 @@ def process_background_removal(
     from rembg import remove
 
     session = get_rembg_session(model_name)
-    cutout = remove(working_img, session=session)
+    cutout = remove(working_img, session=session, post_process_mask=True)
     if isinstance(cutout, Image.Image):
         cutout = cutout.convert("RGBA")
     elif isinstance(cutout, np.ndarray):
