@@ -9,6 +9,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Pre-cache lightweight u2netp model in the image for faster cold starts
+RUN python -c "from rembg import new_session; new_session('u2netp')"
+
 COPY app ./app
 
 ENV PYTHONUNBUFFERED=1

@@ -52,6 +52,11 @@ export function BackgroundRemoverStudio() {
   const [processingMs, setProcessingMs] = useState<number | null>(null);
 
   useEffect(() => {
+    // Wake up the backend (e.g. Render free tier) as soon as the user opens the studio
+    fetch(`${API_BASE}/health`).catch(() => {});
+  }, []);
+
+  useEffect(() => {
     if (!isProcessing) {
       setElapsedSec(0);
       return;
