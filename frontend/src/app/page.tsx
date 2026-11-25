@@ -84,6 +84,14 @@ const TOOLS = [
     status: "Active",
     icon: UserSquare2,
   },
+  {
+    id: "image-generator",
+    name: "AI Image Generator",
+    desc: "Create high-resolution artwork and photos from any text prompt.",
+    href: "/tools/image-generator",
+    status: "Active",
+    icon: Sparkles,
+  },
 ];
 
 const FAQS = [

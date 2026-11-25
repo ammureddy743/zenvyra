@@ -14,6 +14,7 @@ from app.services.bg_remover import (
     process_background_removal,
 )
 from app.services.cleanup import periodic_cleanup_loop, purge_expired_files
+from app.services.image_generator import generate_image_from_prompt
 from app.services.object_remover import process_object_removal
 from app.services.passport_maker import PassportPreset, process_passport_photo
 from app.services.photo_restorer import process_photo_restoration
@@ -112,6 +113,7 @@ async def list_tools():
             {"id": "object-remover", "name": "Object Remover", "status": "active"},
             {"id": "photo-restorer", "name": "Old Photo Restorer", "status": "active"},
             {"id": "passport-maker", "name": "Passport Photo Maker", "status": "active"},
+            {"id": "image-generator", "name": "AI Image Generator", "status": "active"},
         ]
     }
 
@@ -303,6 +305,45 @@ async def passport_photo(
     except Exception as exc:
         logger.exception("Passport photo failed: %s", exc)
         raise HTTPException(status_code=500, detail="Passport photo creation failed.")
+
+    return Response(
+        content=result.image_bytes,
+        media_type=result.content_type,
+        headers={
+            "X-Original-Width": str(result.width),
+            "X-Original-Height": str(result.height),
+            "X-Processing-Ms": str(result.processing_ms),
+            "Cache-Control": "no-store",
+        },
+    )
+
+
+@app.post(f"{settings.api_v1_prefix}/generate-image")
+async def generate_image(
+    prompt: str = Form(...),
+    style: str = Form("photorealistic"),
+    width: int = Form(1024),
+    height: int = Form(1024),
+):
+    clean = prompt.strip()
+    if len(clean) < 2:
+        raise HTTPException(status_code=400, detail="Please enter a prompt to generate an image.")
+    if len(clean) > 1000:
+        raise HTTPException(status_code=400, detail="Prompt must be under 1000 characters.")
+
+    try:
+        result = await generate_image_from_prompt(
+            prompt=clean,
+            style=style,
+            width=width,
+            height=height,
+        )
+    except Exception as exc:
+        logger.exception("Image generation failed: %s", exc)
+        raise HTTPException(
+            status_code=502,
+            detail="Image generation service is busy or unavailable. Please try again.",
+        )
 
     return Response(
         content=result.image_bytes,

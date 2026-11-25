@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { ArrowRight, Sparkles } from "lucide-react";
 
 const QUICK_PROMPTS = [
+  "Generate: Neon cyberpunk city at night",
   "Remove background",
   "Upscale 4x sharper",
   "Remove unwanted object",
@@ -13,7 +14,13 @@ const QUICK_PROMPTS = [
 ];
 
 function resolvePromptRoute(promptText: string): string {
-  const q = promptText.toLowerCase();
+  const raw = promptText.trim();
+  const q = raw.toLowerCase();
+
+  if (q.startsWith("generate:") || q.startsWith("create:") || q.startsWith("draw ")) {
+    const cleaned = raw.replace(/^(generate:|create:|draw\s+)/i, "").trim();
+    return `/tools/image-generator?prompt=${encodeURIComponent(cleaned)}`;
+  }
 
   if (q.includes("passport") || q.includes("visa") || q.includes("id photo")) {
     const params = new URLSearchParams();
@@ -38,16 +45,21 @@ function resolvePromptRoute(promptText: string): string {
     return `/tools/upscaler?scale=${scale}`;
   }
 
-  if (q.includes("object") || q.includes("erase") || q.includes("inpaint") || q.includes("blemish") || q.includes("person")) {
+  if (q.includes("remove object") || q.includes("erase") || q.includes("inpaint") || q.includes("blemish")) {
     return "/tools/object-remover";
   }
 
-  if (q.includes("restore") || q.includes("old") || q.includes("colorize") || q.includes("vintage") || q.includes("face")) {
+  if (q.includes("restore") || q.includes("old photo") || q.includes("colorize") || q.includes("vintage")) {
     const colorize = q.includes("color") ? "1" : "0";
     return `/tools/photo-restorer?colorize=${colorize}`;
   }
 
-  return "/tools/background-remover";
+  if (q.includes("background") || q.includes("remove bg") || q.includes("cutout")) {
+    return "/tools/background-remover";
+  }
+
+  // Any other descriptive prompt creates a brand-new AI image
+  return `/tools/image-generator?prompt=${encodeURIComponent(raw)}`;
 }
 
 export function PromptCommandBar() {
@@ -72,7 +84,7 @@ export function PromptCommandBar() {
             type="text"
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
-            placeholder="Describe your edit (e.g. 'Upscale 4x' or 'US passport photo white background')..."
+            placeholder="Create an image or pick an edit (e.g. 'Neon city at night' or 'Upscale 4x')..."
             className="w-full bg-transparent py-2 text-sm outline-none placeholder:text-zinc-400"
           />
         </div>

@@ -24,6 +24,7 @@ export function Navbar() {
     { href: "/tools/object-remover", label: "Object Remover" },
     { href: "/tools/photo-restorer", label: "Restorer" },
     { href: "/tools/passport-maker", label: "Passport" },
+    { href: "/tools/image-generator", label: "Generate" },
   ];
 
   return (
