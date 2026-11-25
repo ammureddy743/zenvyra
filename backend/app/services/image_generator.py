@@ -37,8 +37,8 @@ async def generate_image_from_prompt(
     full_prompt = f"{clean_prompt}, {modifier}" if modifier else clean_prompt
     seed = random.randint(1, 999999)
 
-    safe_w = max(512, min(int(width), 1280))
-    safe_h = max(512, min(int(height), 1280))
+    safe_w = max(512, min(width, 1280))
+    safe_h = max(512, min(height, 1280))
 
     url = (
         f"https://image.pollinations.ai/prompt/{quote(full_prompt)}"
