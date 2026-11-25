@@ -4,6 +4,7 @@ import logging
 from typing import Literal
 
 from fastapi import FastAPI, File, Form, HTTPException, Response, UploadFile
+from fastapi.concurrency import run_in_threadpool
 from fastapi.middleware.cors import CORSMiddleware
 from PIL import UnidentifiedImageError
 
@@ -128,7 +129,8 @@ async def remove_background(
     raw_bytes = await _read_and_validate_image(file)
 
     try:
-        result = process_background_removal(
+        result = await run_in_threadpool(
+            process_background_removal,
             raw_bytes=raw_bytes,
             model_name=model,
             export_format=export_format,
@@ -178,7 +180,8 @@ async def upscale_image(
     safe_scale: Literal[2, 4] = 4 if scale == 4 else 2
 
     try:
-        result = process_upscale(
+        result = await run_in_threadpool(
+            process_upscale,
             raw_bytes=raw_bytes,
             scale=safe_scale,
             sharpen=max(0.0, min(sharpen, 3.0)),
@@ -215,7 +218,8 @@ async def remove_object(
         raise HTTPException(status_code=400, detail="Mask image is required.")
 
     try:
-        result = process_object_removal(
+        result = await run_in_threadpool(
+            process_object_removal,
             raw_bytes=raw_bytes,
             mask_bytes=mask_bytes,
             export_format=export_format,
@@ -249,7 +253,8 @@ async def restore_photo(
     raw_bytes = await _read_and_validate_image(file)
 
     try:
-        result = process_photo_restoration(
+        result = await run_in_threadpool(
+            process_photo_restoration,
             raw_bytes=raw_bytes,
             enhance_details=enhance_details,
             colorize=colorize,
@@ -285,7 +290,8 @@ async def passport_photo(
     raw_bytes = await _read_and_validate_image(file)
 
     try:
-        result = process_passport_photo(
+        result = await run_in_threadpool(
+            process_passport_photo,
             raw_bytes=raw_bytes,
             preset=preset,
             bg_color=bg_color,

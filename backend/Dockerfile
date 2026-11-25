@@ -15,6 +15,9 @@ RUN python -c "from rembg import new_session; new_session('u2netp')"
 COPY app ./app
 
 ENV PYTHONUNBUFFERED=1
+ENV OMP_NUM_THREADS=1
+ENV OPENBLAS_NUM_THREADS=1
+ENV NUMBA_CACHE_DIR=/tmp/numba_cache
 ENV PORT=8000
 
 EXPOSE 8000
