@@ -2,16 +2,20 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, Moon, Sparkles, Sun, X, Zap } from "lucide-react";
+import { LogIn, LogOut, Menu, Moon, Sparkles, Sun, User, X, Zap } from "lucide-react";
 import { useState } from "react";
 import { useTheme } from "./ThemeProvider";
 import { useCredits } from "./CreditsContext";
+import { useAuth } from "./AuthContext";
+import { AuthModal } from "./AuthModal";
 
 export function Navbar() {
   const pathname = usePathname();
   const { theme, toggleTheme } = useTheme();
   const { credits, dailyLimit } = useCredits();
+  const { user, signOut } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [authOpen, setAuthOpen] = useState(false);
 
   const navLinks = [
     { href: "/", label: "Home" },
@@ -82,12 +86,34 @@ export function Navbar() {
             )}
           </button>
 
-          <Link
-            href="/tools/background-remover"
-            className="hidden sm:inline-flex items-center justify-center rounded-lg bg-zinc-900 dark:bg-white px-3.5 py-2 text-xs font-semibold text-white dark:text-zinc-900 hover:opacity-90 transition-opacity"
-          >
-            Open Studio
-          </Link>
+          {user ? (
+            <div className="flex items-center gap-2">
+              <span
+                title={user.email}
+                className="hidden sm:inline-flex items-center gap-1.5 rounded-lg border border-zinc-200 dark:border-zinc-800 px-2.5 py-1.5 text-xs font-medium text-zinc-700 dark:text-zinc-200 max-w-[160px] truncate"
+              >
+                <User className="h-3.5 w-3.5 shrink-0 text-violet-500" />
+                <span className="truncate">{user.email}</span>
+              </span>
+              <button
+                type="button"
+                onClick={signOut}
+                className="inline-flex items-center gap-1.5 rounded-lg border border-zinc-200 dark:border-zinc-800 px-3 py-2 text-xs font-semibold hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors"
+              >
+                <LogOut className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">Logout</span>
+              </button>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setAuthOpen(true)}
+              className="inline-flex items-center gap-1.5 rounded-lg bg-zinc-900 dark:bg-white px-3.5 py-2 text-xs font-semibold text-white dark:text-zinc-900 hover:opacity-90 transition-opacity"
+            >
+              <LogIn className="h-3.5 w-3.5" />
+              Login
+            </button>
+          )}
 
           <button
             type="button"
@@ -115,6 +141,8 @@ export function Navbar() {
           ))}
         </div>
       )}
+
+      <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
     </header>
   );
 }
