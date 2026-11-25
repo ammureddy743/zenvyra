@@ -118,7 +118,7 @@ async def list_tools():
 @app.post(f"{settings.api_v1_prefix}/remove-background")
 async def remove_background(
     file: UploadFile = File(...),
-    model: Literal["birefnet-general", "isnet-general-use"] = Form("birefnet-general"),
+    model: Literal["u2netp", "isnet-general-use", "birefnet-general"] = Form("u2netp"),
     export_format: Literal["png", "jpeg"] = Form("png"),
     bg_color: str = Form("#ffffff"),
     feather: float = Form(0.0),

@@ -23,7 +23,7 @@ const ACCEPTED_TYPES = new Set(["image/jpeg", "image/jpg", "image/png", "image/w
 const API_BASE =
   process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") || "http://localhost:8000";
 
-type BgModel = "birefnet-general" | "isnet-general-use";
+type BgModel = "u2netp" | "isnet-general-use" | "birefnet-general";
 type ExportFormat = "png" | "jpeg";
 type StudioView = "compare" | "brush";
 
@@ -36,7 +36,7 @@ export function BackgroundRemoverStudio() {
   const [resultUrl, setResultUrl] = useState<string | null>(null);
   const [dimensions, setDimensions] = useState<{ w: number; h: number } | null>(null);
 
-  const [model, setModel] = useState<BgModel>("birefnet-general");
+  const [model, setModel] = useState<BgModel>("u2netp");
   const [exportFormat, setExportFormat] = useState<ExportFormat>("png");
   const [bgColor, setBgColor] = useState<string>("#ffffff");
   const [useSolidPreview, setUseSolidPreview] = useState<boolean>(false);
@@ -414,14 +414,19 @@ export function BackgroundRemoverStudio() {
                   {(
                     [
                       {
-                        id: "birefnet-general",
-                        title: "BiRefNet General",
-                        desc: "Best for hair, fur & complex edges",
+                        id: "u2netp",
+                        title: "U2-Net Fast (Recommended)",
+                        desc: "Fastest (~1–3s) & works on free cloud tier",
                       },
                       {
                         id: "isnet-general-use",
                         title: "IS-Net General Use",
-                        desc: "Faster processing, crisp product edges",
+                        desc: "Sharper product & portrait edges (~179 MB)",
+                      },
+                      {
+                        id: "birefnet-general",
+                        title: "BiRefNet General",
+                        desc: "Best hair detail (needs 2 GB+ RAM)",
                       },
                     ] as const
                   ).map((m) => (

@@ -55,7 +55,7 @@ def process_passport_photo(
     started = time.perf_counter()
 
     original = ImageOps.exif_transpose(Image.open(BytesIO(raw_bytes))).convert("RGBA")
-    session = get_rembg_session("isnet-general-use")
+    session = get_rembg_session("u2netp")
     cutout = remove(original, session=session)
     if isinstance(cutout, Image.Image):
         cutout = cutout.convert("RGBA")

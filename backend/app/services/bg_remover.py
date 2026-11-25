@@ -9,12 +9,13 @@ from PIL import Image, ImageFilter, ImageOps
 if TYPE_CHECKING:
     from rembg.sessions.base import BaseSession
 
-AllowedModel = Literal["birefnet-general", "isnet-general-use"]
+AllowedModel = Literal["u2netp", "isnet-general-use", "birefnet-general"]
 ExportFormat = Literal["png", "jpeg"]
 
 SUPPORTED_MODELS: dict[str, str] = {
-    "birefnet-general": "BiRefNet General (Best detail & hair)",
-    "isnet-general-use": "IS-Net General Use (Fast & crisp edges)",
+    "u2netp": "U2-Net Fast (Instant & low-memory)",
+    "isnet-general-use": "IS-Net General Use (Crisp edges)",
+    "birefnet-general": "BiRefNet General (Best hair detail, 2GB+ RAM)",
 }
 
 _SESSION_CACHE: dict[str, "BaseSession"] = {}
@@ -118,7 +119,7 @@ def _parse_hex_color(hex_color: str) -> tuple[int, int, int]:
 
 def process_background_removal(
     raw_bytes: bytes,
-    model_name: AllowedModel = "birefnet-general",
+    model_name: AllowedModel = "u2netp",
     export_format: ExportFormat = "png",
     bg_color: str = "#ffffff",
     feather: float = 0.0,
