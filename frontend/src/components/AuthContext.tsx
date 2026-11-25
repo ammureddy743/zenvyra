@@ -44,16 +44,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const supabase = getSupabaseClient();
     if (supabase) {
-      supabase.auth.getUser().then(({ data }) => {
-        if (data.user?.email) {
-          setUser({
-            id: data.user.id,
-            email: data.user.email,
-            name: data.user.user_metadata?.full_name,
-          });
+      const initSupabaseAuth = async () => {
+        try {
+          const url = new URL(window.location.href);
+          const code = url.searchParams.get("code");
+          if (code) {
+            await supabase.auth.exchangeCodeForSession(code);
+            url.searchParams.delete("code");
+            window.history.replaceState({}, "", url.pathname + url.search + url.hash);
+          }
+
+          const { data } = await supabase.auth.getSession();
+          const sessionUser = data.session?.user;
+          if (sessionUser?.email) {
+            setUser({
+              id: sessionUser.id,
+              email: sessionUser.email,
+              name: sessionUser.user_metadata?.full_name,
+            });
+          }
+        } finally {
+          setLoading(false);
         }
-        setLoading(false);
-      });
+      };
+
+      initSupabaseAuth();
 
       const {
         data: { subscription },
