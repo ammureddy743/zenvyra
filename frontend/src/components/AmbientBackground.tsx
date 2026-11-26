@@ -2,19 +2,19 @@ export function AmbientBackground() {
   return (
     <div
       aria-hidden="true"
-      className="pointer-events-none fixed inset-0 -z-10 overflow-hidden"
+      className="pointer-events-none fixed inset-0 z-0 overflow-hidden bg-gradient-to-br from-[#eef2ff] via-[#f4f6fb] to-[#e6f7fa] dark:from-[#070913] dark:via-[#0b0f1e] dark:to-[#07131d]"
     >
       {/* Subtle Studio Grid */}
-      <div className="absolute inset-0 bg-studio-grid opacity-60 dark:opacity-50" />
+      <div className="absolute inset-0 bg-studio-grid opacity-75 dark:opacity-60" />
 
-      {/* Top-Left Violet Glow */}
-      <div className="animate-ambient-1 absolute -top-32 -left-24 h-[460px] w-[460px] rounded-full bg-violet-500/15 dark:bg-violet-600/20 blur-3xl" />
+      {/* Animated Top-Left Indigo/Violet Glow */}
+      <div className="animate-ambient-1 absolute -top-24 -left-20 h-[520px] w-[520px] rounded-full bg-indigo-500/30 dark:bg-violet-600/35 blur-3xl will-change-transform" />
 
-      {/* Top-Right Cyan Glow */}
-      <div className="animate-ambient-2 absolute top-16 -right-24 h-[420px] w-[420px] rounded-full bg-cyan-400/15 dark:bg-cyan-500/15 blur-3xl" />
+      {/* Animated Top-Right Teal/Sky Glow */}
+      <div className="animate-ambient-2 absolute top-10 -right-20 h-[480px] w-[480px] rounded-full bg-sky-400/30 dark:bg-cyan-500/30 blur-3xl will-change-transform" />
 
-      {/* Lower-Center Fuchsia Glow */}
-      <div className="animate-ambient-3 absolute -bottom-40 left-1/3 h-[500px] w-[500px] rounded-full bg-fuchsia-500/10 dark:bg-fuchsia-600/15 blur-3xl" />
+      {/* Animated Bottom-Center Rose/Violet Glow */}
+      <div className="animate-ambient-3 absolute -bottom-32 left-1/4 h-[540px] w-[540px] rounded-full bg-fuchsia-400/25 dark:bg-fuchsia-600/30 blur-3xl will-change-transform" />
     </div>
   );
 }

@@ -58,6 +58,10 @@ export function PricingSection() {
                   <Check className="h-4 w-4 shrink-0 text-emerald-500" />
                   Access to all 6 AI studio tools
                 </li>
+                <li className="flex items-center gap-2.5">
+                  <Check className="h-4 w-4 shrink-0 text-emerald-500" />
+                  Photo and video editors included
+                </li>
               </ul>
             </div>
 
@@ -90,7 +94,7 @@ export function PricingSection() {
               <ul className="mt-6 space-y-3 text-sm text-zinc-700 dark:text-zinc-200">
                 <li className="flex items-center gap-2.5">
                   <Check className="h-4 w-4 shrink-0 text-violet-500" />
-                  Unlimited daily AI edits across all 6 tools
+                  Unlimited daily AI edits across all 6 AI tools
                 </li>
                 <li className="flex items-center gap-2.5">
                   <Check className="h-4 w-4 shrink-0 text-violet-500" />

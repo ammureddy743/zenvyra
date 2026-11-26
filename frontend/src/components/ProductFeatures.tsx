@@ -2,6 +2,8 @@ import Link from "next/link";
 import {
   ArrowUpRight,
   Eraser,
+  Film,
+  ImageIcon,
   Maximize2,
   Scissors,
   Sparkles,
@@ -64,6 +66,24 @@ const FEATURES = [
     icon: Wand2,
     style: "feature-card-restore",
   },
+  {
+    number: "07",
+    label: "EDIT PHOTOS",
+    title: "Everyday edits, all in one place.",
+    description: "Crop, rotate, tune brightness and color, add a caption, then export a clean copy.",
+    href: "/tools/photo-editor",
+    icon: ImageIcon,
+    style: "feature-card-upscale",
+  },
+  {
+    number: "08",
+    label: "EDIT VIDEO",
+    title: "Shape a clip for every screen.",
+    description: "Trim to the moment you want and crop for landscape, portrait, square, or original format.",
+    href: "/tools/video-editor",
+    icon: Film,
+    style: "feature-card-create",
+  },
 ];
 
 export function ProductFeatures() {
@@ -75,11 +95,11 @@ export function ProductFeatures() {
             A studio for every idea
           </span>
           <h2 id="features-title" className="mt-3 max-w-3xl text-3xl font-semibold tracking-tight sm:text-5xl">
-            All the ways to make an image your own.
+            All the ways to make your media your own.
           </h2>
         </div>
         <p className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-400 sm:col-span-4 sm:pb-1 sm:text-base">
-          Start with a single edit or move between six dedicated studios, each designed around a different creative task.
+          Start with a single edit or move between eight dedicated studios, each designed around a different creative task.
         </p>
       </div>
 

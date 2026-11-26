@@ -21,12 +21,20 @@ const FAQS = [
     a: "Yes. Every cutout opens with Edge Feathering, Smoothing, and Shift Edge controls, plus a full-resolution Touch-Up Brush with Erase, Restore, and Undo/Redo history.",
   },
   {
+    q: "What can I do in the Photo Editor?",
+    a: "Upload a JPG, PNG, or WebP photo to crop with common aspect ratios, rotate, adjust brightness, contrast, and saturation, add a caption, undo edits, and export a PNG or JPEG. Your original file is not overwritten.",
+  },
+  {
+    q: "Can I edit a video I already have?",
+    a: "Yes. Upload a browser-compatible MP4, WebM, or MOV clip up to 250 MB, trim a segment up to two minutes, and crop it to original, landscape, portrait, or square. Source audio is kept. Export is MP4 when supported by your browser and WebM otherwise.",
+  },
+  {
     q: "Are passport photos compliant with official standards?",
     a: "Yes. The Passport Photo Maker includes presets for US (2×2 in), EU/Schengen, UK, and India (35×45 mm) with compliant background colors and optional 4×6 printable sheets.",
   },
   {
     q: "How do daily free credits work?",
-    a: "Every visitor receives 10 free AI credits per day across all 6 tools. Sign in to sync your account and unlock Pro Studio tiers when you need unlimited volume.",
+    a: "Every visitor receives 10 free AI credits per day across the AI-powered tools. Sign in to sync your account and unlock Pro Studio tiers when you need more volume.",
   },
 ];
 

@@ -5,6 +5,8 @@ import { usePathname } from "next/navigation";
 import {
   ChevronDown,
   Eraser,
+  Film,
+  ImageIcon,
   LogIn,
   LogOut,
   Maximize2,
@@ -61,6 +63,18 @@ const TOOL_MENU = [
     label: "AI Image & Video",
     desc: "Generate images & motion videos",
     icon: Sparkles,
+  },
+  {
+    href: "/tools/photo-editor",
+    label: "Photo Editor",
+    desc: "Crop, color, rotate & caption",
+    icon: ImageIcon,
+  },
+  {
+    href: "/tools/video-editor",
+    label: "Video Editor",
+    desc: "Trim and crop video clips",
+    icon: Film,
   },
 ];
 

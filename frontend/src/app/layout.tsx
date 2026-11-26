@@ -20,9 +20,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Zenvyra — Full-Resolution AI Photo Studio",
+  title: "Zenvyra | Photo & Video Editing Studio",
   description:
-    "AI photo-editing platform with background removal, upscaling, object removal, restoration, and passport photo tools.",
+    "Edit photos, trim and crop videos, restore images, and create with AI in one browser-based creative studio.",
 };
 
 export default function RootLayout({
@@ -36,15 +36,17 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased dark`}
       suppressHydrationWarning
     >
-      <body className="relative min-h-full flex flex-col overflow-x-hidden bg-zinc-50 text-zinc-900 dark:bg-zinc-950 dark:text-zinc-100">
+      <body className="relative min-h-full flex flex-col overflow-x-hidden text-slate-900 dark:text-slate-100">
         <AmbientBackground />
         <ThemeProvider>
           <AuthProvider>
             <CreditsProvider>
               <ToolHandoffProvider>
-                <Navbar />
-                <main className="flex-1">{children}</main>
-                <Footer />
+                <div className="relative z-10 flex min-h-full flex-col flex-1">
+                  <Navbar />
+                  <main className="flex-1">{children}</main>
+                  <Footer />
+                </div>
               </ToolHandoffProvider>
             </CreditsProvider>
           </AuthProvider>

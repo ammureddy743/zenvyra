@@ -3,13 +3,13 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  --background: #fafafa;
-  --foreground: #09090b;
+  --background: #f1f4fa;
+  --foreground: #0f172a;
 }
 
 .dark {
-  --background: #09090b;
-  --foreground: #fafafa;
+  --background: #070913;
+  --foreground: #f8fafc;
 }
 
 body {
@@ -84,7 +84,7 @@ body {
     transform: translate3d(0, 0, 0) scale(1);
   }
   50% {
-    transform: translate3d(6%, 4%, 0) scale(1.08);
+    transform: translate3d(18%, 12%, 0) scale(1.18);
   }
 }
 
@@ -93,7 +93,7 @@ body {
     transform: translate3d(0, 0, 0) scale(1);
   }
   50% {
-    transform: translate3d(-5%, -6%, 0) scale(1.1);
+    transform: translate3d(-16%, -12%, 0) scale(1.18);
   }
 }
 
@@ -102,20 +102,20 @@ body {
     transform: translate3d(0, 0, 0) scale(1);
   }
   50% {
-    transform: translate3d(4%, -4%, 0) scale(1.06);
+    transform: translate3d(14%, -10%, 0) scale(1.15);
   }
 }
 
 .animate-ambient-1 {
-  animation: ambientDriftOne 16s ease-in-out infinite;
+  animation: ambientDriftOne 9s ease-in-out infinite;
 }
 
 .animate-ambient-2 {
-  animation: ambientDriftTwo 20s ease-in-out infinite;
+  animation: ambientDriftTwo 11s ease-in-out infinite;
 }
 
 .animate-ambient-3 {
-  animation: ambientDriftThree 24s ease-in-out infinite;
+  animation: ambientDriftThree 13s ease-in-out infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {

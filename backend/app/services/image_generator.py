@@ -147,27 +147,37 @@ async def _try_aihorde(
     submit.raise_for_status()
     job_id = submit.json()["id"]
 
-    for _ in range(40):
-        await asyncio.sleep(2.0)
-        status_resp = await client.get(
-            f"https://aihorde.net/api/v2/generate/status/{job_id}",
+    for _ in range(10):
+        await asyncio.sleep(4.0)
+        check_resp = await client.get(
+            f"https://aihorde.net/api/v2/generate/check/{job_id}",
             headers=headers,
         )
-        status_resp.raise_for_status()
-        data = status_resp.json()
-        if data.get("done") and data.get("generations"):
-            gen = data["generations"][0]
-            if gen.get("censored"):
-                raise RuntimeError("AI Horde worker returned a censored placeholder.")
-            img_url = gen["img"]
-            img_resp = await client.get(img_url)
-            img_resp.raise_for_status()
-            if _is_censored_placeholder(img_resp.content):
-                raise RuntimeError("AI Horde worker returned a monochrome censored placeholder.")
-            fitted = _fit_to_target(img_resp.content, safe_w, safe_h)
-            return fitted, "image/jpeg"
-        if data.get("faulted"):
+        if check_resp.status_code in (429, 500, 502, 503, 504):
+            await asyncio.sleep(4.0)
+            continue
+        check_resp.raise_for_status()
+        check_data = check_resp.json()
+        if check_data.get("faulted"):
             raise RuntimeError("AI Horde generation faulted.")
+        if check_data.get("done"):
+            status_resp = await client.get(
+                f"https://aihorde.net/api/v2/generate/status/{job_id}",
+                headers=headers,
+            )
+            status_resp.raise_for_status()
+            data = status_resp.json()
+            if data.get("generations"):
+                gen = data["generations"][0]
+                if gen.get("censored"):
+                    raise RuntimeError("AI Horde worker returned a censored placeholder.")
+                img_url = gen["img"]
+                img_resp = await client.get(img_url)
+                img_resp.raise_for_status()
+                if _is_censored_placeholder(img_resp.content):
+                    raise RuntimeError("AI Horde worker returned a monochrome censored placeholder.")
+                fitted = _fit_to_target(img_resp.content, safe_w, safe_h)
+                return fitted, "image/jpeg"
 
     raise TimeoutError("AI Horde generation timed out.")
 

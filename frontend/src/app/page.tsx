@@ -20,13 +20,13 @@ const METRICS = [
   {
     label: "Export Quality",
     value: "Full-Res",
-    detail: "Lossless PNG & 96% JPEG up to 20 MB",
+    detail: "Full-size PNG and high-quality JPEG photo exports",
     icon: Layers,
   },
   {
-    label: "AI Engines",
-    value: "6 Studios",
-    detail: "BiRefNet, IS-Net, Inpaint, Upscale & Gen",
+    label: "Creative Tools",
+    value: "8 Studios",
+    detail: "Photo editing, AI creation, and video",
     icon: Zap,
   },
   {
@@ -47,19 +47,19 @@ const WORKFLOW_STEPS = [
   {
     step: "01",
     title: "Upload or describe your edit",
-    desc: "Drop any JPG, PNG, or WebP up to 20 MB, or type a natural-language command in the prompt bar to jump straight to the right tool.",
+    desc: "Upload a supported photo or video clip, or type an edit in the prompt bar to open the right studio.",
     icon: UploadCloud,
   },
   {
     step: "02",
     title: "Refine with AI & pixel tools",
-    desc: "Run BiRefNet, 4× upscaling, or inpainting—then inspect with the zoomable Before/After slider and touch-up brush.",
+    desc: "Remove a background or object, adjust a photo, trim a clip, or upscale—then compare and refine your result.",
     icon: SlidersHorizontal,
   },
   {
     step: "03",
     title: "Export at native resolution",
-    desc: "Download lossless transparent PNGs or high-quality JPEGs with zero compression. Temporary files auto-purge within 24 hours.",
+    desc: "Export photos as PNG or JPEG and videos as MP4 when supported, otherwise WebM. Temporary server uploads auto-purge within 24 hours.",
     icon: ShieldCheck,
   },
 ];
@@ -86,7 +86,7 @@ export default function HomePage() {
               <span className="block bg-gradient-to-r from-violet-300 via-fuchsia-200 to-cyan-200 bg-clip-text text-transparent">more than it was.</span>
             </h1>
             <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-zinc-300 sm:text-lg">
-              Remove, restore, create, and refine in one beautifully simple workspace. Start with a prompt or jump straight into a studio.
+              Edit photos, trim videos, restore old images, and create with AI in one clear workspace. Start with a prompt or choose a studio.
             </p>
             <div className="mx-auto mt-8 max-w-3xl text-left">
               <PromptCommandBar />
@@ -143,10 +143,10 @@ export default function HomePage() {
               AI Suite
             </span>
             <h2 className="mt-1.5 text-2xl sm:text-3xl font-bold tracking-tight">
-              Find the right studio for every image
+              Find the right studio for every photo or video
             </h2>
             <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
-              Search by task or filter by editing, creating, and restoring. Open any studio directly from here.
+              Search by task or filter by editing, creating, and restoring. Open any photo or video studio directly from here.
             </p>
           </div>
         </div>

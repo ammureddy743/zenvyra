@@ -8,11 +8,13 @@ const TOOL_LINKS = [
   { href: "/tools/photo-restorer", label: "Old Photo Restorer" },
   { href: "/tools/passport-maker", label: "Passport Photo Maker" },
   { href: "/tools/image-generator", label: "AI Image Generator" },
+  { href: "/tools/photo-editor", label: "Photo Editor" },
+  { href: "/tools/video-editor", label: "Video Editor" },
 ];
 
 const PLATFORM_LINKS = [
   { href: "/#studio", label: "Live Studio" },
-  { href: "/#tools", label: "All AI Tools" },
+  { href: "/#tools", label: "All Photo & Video Tools" },
   { href: "/#workflow", label: "How It Works" },
   { href: "/#pricing", label: "Pricing" },
   { href: "/#faq", label: "FAQ" },
@@ -34,20 +36,18 @@ export function Footer() {
               </span>
             </Link>
             <p className="text-sm text-zinc-600 dark:text-zinc-400 max-w-sm leading-relaxed">
-              Full-resolution AI photo studio in your browser. Cutouts, 4× upscaling,
-              object removal, restoration, compliant IDs, and image generation—without
-              compression.
+              Edit photos, create new visuals, and trim shareable video clips in one browser workspace.
             </p>
             <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200 dark:border-emerald-900/60 bg-emerald-50/70 dark:bg-emerald-950/30 px-3 py-1 text-xs font-medium text-emerald-700 dark:text-emerald-300">
               <ShieldCheck className="h-3.5 w-3.5" />
-              Zero-retention privacy • Auto-deleted in 24h
+              AI uploads auto-delete in 24h • Basic edits stay in your browser
             </div>
           </div>
 
           {/* AI Tools */}
           <div className="lg:col-span-4 space-y-3">
             <h3 className="text-xs font-semibold uppercase tracking-wider text-zinc-900 dark:text-zinc-100">
-              AI Studio Tools
+              Photo &amp; Video Tools
             </h3>
             <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-2.5 text-sm">
               {TOOL_LINKS.map((item) => (
@@ -85,7 +85,7 @@ export function Footer() {
 
         <div className="mt-10 pt-6 border-t border-zinc-200/80 dark:border-zinc-800/80 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs text-zinc-500 dark:text-zinc-400">
           <p>© 2026 Zenvyra Studio. All rights reserved.</p>
-          <p>Lossless PNG &amp; 96% JPEG • Max 20 MB per image</p>
+          <p>PNG and JPEG photos • MP4 or WebM video exports</p>
         </div>
       </div>
     </footer>

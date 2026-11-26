@@ -4,6 +4,8 @@ import { Suspense, useState } from "react";
 import {
   ArrowUpRight,
   Eraser,
+  Film,
+  ImageIcon,
   Maximize2,
   Scissors,
   Sparkles,
@@ -16,6 +18,8 @@ import { ObjectRemoverStudio } from "./ObjectRemoverStudio";
 import { PhotoRestorerStudio } from "./PhotoRestorerStudio";
 import { PassportMakerStudio } from "./PassportMakerStudio";
 import { ImageGeneratorStudio } from "./ImageGeneratorStudio";
+import { PhotoEditorStudio } from "./PhotoEditorStudio";
+import { VideoEditorStudio } from "./VideoEditorStudio";
 
 type StudioId =
   | "background-remover"
@@ -23,7 +27,9 @@ type StudioId =
   | "object-remover"
   | "photo-restorer"
   | "passport-maker"
-  | "image-generator";
+  | "image-generator"
+  | "photo-editor"
+  | "video-editor";
 
 const STUDIO_TABS: { id: StudioId; label: string; detail: string; icon: typeof Scissors }[] = [
   { id: "background-remover", label: "Background", detail: "Cut out a subject", icon: Scissors },
@@ -32,6 +38,8 @@ const STUDIO_TABS: { id: StudioId; label: string; detail: string; icon: typeof S
   { id: "photo-restorer", label: "Photo restore", detail: "Repair old photos", icon: Wand2 },
   { id: "passport-maker", label: "ID photos", detail: "Crop for print", icon: UserSquare2 },
   { id: "image-generator", label: "Generate", detail: "Create image or video", icon: Sparkles },
+  { id: "photo-editor", label: "Photo edit", detail: "Crop, color, caption", icon: ImageIcon },
+  { id: "video-editor", label: "Video edit", detail: "Trim and crop clips", icon: Film },
 ];
 
 export function LiveStudioWorkspace() {
@@ -39,6 +47,13 @@ export function LiveStudioWorkspace() {
     useState<StudioId>("background-remover");
   const activeTab = STUDIO_TABS.find((tab) => tab.id === activeStudio) ?? STUDIO_TABS[0];
   const ActiveIcon = activeTab.icon;
+  const uploadHint = activeStudio === "video-editor"
+    ? "MP4, WebM, or MOV · up to 250 MB"
+    : activeStudio === "photo-editor"
+      ? "JPG, PNG, or WebP · up to 30 MB"
+      : activeStudio === "image-generator"
+        ? "Describe the image or video you want to create"
+        : "JPG, PNG, or WebP · up to 20 MB";
 
   return (
     <section aria-labelledby="workspace-title" className="space-y-5">
@@ -55,7 +70,7 @@ export function LiveStudioWorkspace() {
                   What would you like to make?
                 </h2>
                 <p className="mt-1.5 max-w-xl text-sm text-zinc-600 dark:text-zinc-400">
-                  Choose a focused studio, bring in an image, and make the edit your own.
+                  Choose a focused studio, bring in a photo or video, and make the edit your own.
                 </p>
               </div>
               <a href="#tools" className="inline-flex items-center gap-1.5 text-sm font-semibold text-violet-700 transition hover:text-violet-500 dark:text-violet-300">
@@ -63,7 +78,7 @@ export function LiveStudioWorkspace() {
               </a>
             </div>
 
-            <div role="group" aria-label="Choose a studio" className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
+            <div role="group" aria-label="Choose a studio" className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-8">
               {STUDIO_TABS.map((tab) => {
                 const Icon = tab.icon;
                 const isActive = activeStudio === tab.id;
@@ -96,7 +111,7 @@ export function LiveStudioWorkspace() {
               <ActiveIcon className="h-4 w-4 text-violet-600 dark:text-violet-300" />
               {activeTab.label} studio
             </div>
-            <span className="text-xs text-zinc-500 dark:text-zinc-400">JPG, PNG, or WebP · up to 20 MB</span>
+            <span className="text-xs text-zinc-500 dark:text-zinc-400">{uploadHint}</span>
           </div>
         </div>
       </div>
@@ -115,6 +130,8 @@ export function LiveStudioWorkspace() {
         {activeStudio === "photo-restorer" && <PhotoRestorerStudio />}
         {activeStudio === "passport-maker" && <PassportMakerStudio />}
         {activeStudio === "image-generator" && <ImageGeneratorStudio />}
+        {activeStudio === "photo-editor" && <PhotoEditorStudio />}
+        {activeStudio === "video-editor" && <VideoEditorStudio />}
       </Suspense>
     </section>
   );

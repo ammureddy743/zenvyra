@@ -7,6 +7,8 @@ import { ArrowRight, Sparkles } from "lucide-react";
 const QUICK_PROMPTS = [
   "Generate: Neon cyberpunk city at night",
   "Video: Ocean waves at golden sunset",
+  "Edit photo: crop and adjust colors",
+  "Edit video: trim and crop for Reels",
   "Remove background",
   "Upscale 4x sharper",
   "Remove unwanted object",
@@ -17,6 +19,25 @@ const QUICK_PROMPTS = [
 function resolvePromptRoute(promptText: string): string {
   const raw = promptText.trim();
   const q = raw.toLowerCase();
+
+  if (
+    q.startsWith("edit video") ||
+    q.includes("trim video") ||
+    q.includes("crop video") ||
+    q.includes("edit my video")
+  ) {
+    return "/tools/video-editor";
+  }
+
+  if (
+    q.startsWith("edit photo") ||
+    q.startsWith("photo editor") ||
+    q.includes("crop photo") ||
+    q.includes("rotate photo") ||
+    q.includes("adjust photo")
+  ) {
+    return "/tools/photo-editor";
+  }
 
   if (
     q.startsWith("video:") ||
@@ -100,7 +121,7 @@ export function PromptCommandBar() {
             type="text"
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
-            placeholder="Generate an image or video, or pick an edit (e.g. 'Video: Ocean waves at sunset')..."
+            placeholder="Generate media, edit a photo, trim a video, or pick an AI tool..."
             className="w-full bg-transparent py-2 text-sm outline-none placeholder:text-zinc-400"
           />
         </div>

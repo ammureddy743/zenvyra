@@ -5,6 +5,8 @@ import Link from "next/link";
 import {
   ArrowUpRight,
   Eraser,
+  Film,
+  ImageIcon,
   Maximize2,
   Scissors,
   Search,
@@ -67,6 +69,24 @@ const TOOLS = [
     desc: "Turn a text prompt into a new image or animated motion video.",
     href: "/tools/image-generator",
     icon: Sparkles,
+  },
+  {
+    id: "photo-editor",
+    name: "Photo Editor",
+    category: "Edit",
+    tag: "Crop & Color",
+    desc: "Crop, rotate, adjust light and color, add a caption, and export your photo.",
+    href: "/tools/photo-editor",
+    icon: ImageIcon,
+  },
+  {
+    id: "video-editor",
+    name: "Video Editor",
+    category: "Edit",
+    tag: "Trim & Crop",
+    desc: "Trim a clip, crop it to common aspect ratios, and export for sharing.",
+    href: "/tools/video-editor",
+    icon: Film,
   },
 ];
 
