@@ -194,7 +194,7 @@ export function BrushTouchupCanvas({
           </button>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-1 min-w-[120px] max-w-[180px] items-center gap-2">
           <span className="text-zinc-500 dark:text-zinc-400">Size</span>
           <input
             type="range"
@@ -202,9 +202,9 @@ export function BrushTouchupCanvas({
             max={90}
             value={brushSize}
             onChange={(e) => setBrushSize(Number(e.target.value))}
-            className="w-24 accent-violet-600"
+            className="w-full accent-violet-600"
           />
-          <span className="w-8 font-mono text-right">{brushSize}px</span>
+          <span className="w-8 shrink-0 font-mono text-right">{brushSize}px</span>
         </div>
 
         <div className="flex items-center gap-1">

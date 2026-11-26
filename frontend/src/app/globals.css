@@ -37,3 +37,16 @@ body {
     linear-gradient(45deg, transparent 75%, #27272a 75%),
     linear-gradient(-45deg, transparent 75%, #27272a 75%);
 }
+
+.bg-studio-grid {
+  background-size: 32px 32px;
+  background-image:
+    linear-gradient(to right, rgba(113, 113, 122, 0.08) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(113, 113, 122, 0.08) 1px, transparent 1px);
+}
+
+.dark .bg-studio-grid {
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+}

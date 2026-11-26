@@ -1,128 +1,145 @@
 import Link from "next/link";
 import {
   ArrowRight,
-  Check,
+  ArrowUpRight,
   Eraser,
+  Layers,
+  Lock,
   Maximize2,
   Scissors,
   ShieldCheck,
+  SlidersHorizontal,
   Sparkles,
+  UploadCloud,
   UserSquare2,
   Wand2,
+  Zap,
 } from "lucide-react";
-import { BeforeAfterSlider } from "@/components/BeforeAfterSlider";
-import { BackgroundRemoverStudio } from "@/components/BackgroundRemoverStudio";
+import { LiveStudioWorkspace } from "@/components/LiveStudioWorkspace";
 import { PromptCommandBar } from "@/components/PromptCommandBar";
+import { HeroShowcase } from "@/components/HeroShowcase";
+import { PricingSection } from "@/components/PricingSection";
+import { FaqAccordion } from "@/components/FaqAccordion";
 
-const DEMO_BEFORE_SVG =
-  "data:image/svg+xml;utf8," +
-  encodeURIComponent(`
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600">
-    <defs>
-      <linearGradient id="sky" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0%" stop-color="#3b82f6"/>
-        <stop offset="100%" stop-color="#9333ea"/>
-      </linearGradient>
-    </defs>
-    <rect width="800" height="600" fill="url(#sky)"/>
-    <circle cx="650" cy="120" r="65" fill="#fde047" opacity="0.9"/>
-    <path d="M0 440 Q220 350 420 430 T800 410 L800 600 L0 600 Z" fill="#1e1b4b" opacity="0.65"/>
-    <rect x="275" y="160" width="250" height="290" rx="36" fill="#ffffff"/>
-    <circle cx="400" cy="260" r="56" fill="#7c3aed"/>
-    <rect x="330" y="335" width="140" height="80" rx="22" fill="#06b6d4"/>
-  </svg>
-`);
-
-const DEMO_AFTER_SVG =
-  "data:image/svg+xml;utf8," +
-  encodeURIComponent(`
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600">
-    <rect x="275" y="160" width="250" height="290" rx="36" fill="#ffffff"/>
-    <circle cx="400" cy="260" r="56" fill="#7c3aed"/>
-    <rect x="330" y="335" width="140" height="80" rx="22" fill="#06b6d4"/>
-  </svg>
-`);
+const METRICS = [
+  {
+    label: "Export Quality",
+    value: "Full-Res",
+    detail: "Lossless PNG & 96% JPEG up to 20 MB",
+    icon: Layers,
+  },
+  {
+    label: "AI Engines",
+    value: "6 Studios",
+    detail: "BiRefNet, IS-Net, Inpaint, Upscale & Gen",
+    icon: Zap,
+  },
+  {
+    label: "Data Retention",
+    value: "24h Purge",
+    detail: "Automatic deletion with zero training",
+    icon: Lock,
+  },
+  {
+    label: "Precision Control",
+    value: "Pixel Brush",
+    detail: "Manual erase, restore & edge feathering",
+    icon: SlidersHorizontal,
+  },
+];
 
 const TOOLS = [
   {
     id: "background-remover",
     name: "Background Remover",
-    desc: "Clean full-resolution cutouts with BiRefNet & IS-Net, edge refinement, and touch-up brush.",
+    tag: "Cutout",
+    desc: "Isolate subjects at full resolution with BiRefNet & IS-Net, edge feathering, and a manual touch-up brush.",
     href: "/tools/background-remover",
-    status: "Active",
     icon: Scissors,
   },
   {
     id: "upscaler",
     name: "Image Upscaler",
-    desc: "Enhance sharpness and upscale 2x–4x with detail preservation and denoising.",
+    tag: "4× AI",
+    desc: "Upscale 2× or 4× while preserving crisp edges, fine textures, and natural detail with adaptive denoising.",
     href: "/tools/upscaler",
-    status: "Active",
     icon: Maximize2,
   },
   {
     id: "object-remover",
     name: "Object Remover",
-    desc: "Paint over unwanted people, text, or blemishes with AI inpainting.",
+    tag: "Inpaint",
+    desc: "Paint over unwanted people, watermarks, cables, or blemishes and reconstruct the scene cleanly.",
     href: "/tools/object-remover",
-    status: "Active",
     icon: Eraser,
   },
   {
     id: "photo-restorer",
     name: "Old Photo Restorer",
-    desc: "Restore faded contrast, reduce grain, sharpen faces, and colorize vintage photos.",
+    tag: "Restore",
+    desc: "Recover faded contrast, reduce film grain, sharpen facial details, and colorize monochrome portraits.",
     href: "/tools/photo-restorer",
-    status: "Active",
     icon: Wand2,
   },
   {
     id: "passport-maker",
     name: "Passport Photo Maker",
-    desc: "Auto-crop to official dimensions with compliant solid backgrounds & 4x6 sheets.",
+    tag: "ID & Visa",
+    desc: "Auto-crop to US, EU, UK, and India specifications with compliant backgrounds and 4×6 print sheets.",
     href: "/tools/passport-maker",
-    status: "Active",
     icon: UserSquare2,
   },
   {
     id: "image-generator",
     name: "AI Image Generator",
-    desc: "Create high-resolution artwork and photos from any text prompt.",
+    tag: "Text-to-Image",
+    desc: "Generate studio-grade artwork, product concepts, and photorealistic scenes from any text prompt.",
     href: "/tools/image-generator",
-    status: "Active",
     icon: Sparkles,
   },
 ];
 
-const FAQS = [
+const WORKFLOW_STEPS = [
   {
-    q: "Does Zenvyra compress my uploaded photos?",
-    a: "No. Your original photo is never compressed or overwritten, and exports run at full resolution in lossless PNG or 96% quality JPEG.",
+    step: "01",
+    title: "Upload or describe your edit",
+    desc: "Drop any JPG, PNG, or WebP up to 20 MB, or type a natural-language command in the prompt bar to jump straight to the right tool.",
+    icon: UploadCloud,
   },
   {
-    q: "How long are my uploaded files stored?",
-    a: "All temporary uploaded and processed files are automatically deleted within 24 hours for privacy.",
+    step: "02",
+    title: "Refine with AI & pixel tools",
+    desc: "Run BiRefNet, 4× upscaling, or inpainting—then inspect with the zoomable Before/After slider and touch-up brush.",
+    icon: SlidersHorizontal,
   },
   {
-    q: "Which AI model should I choose for background removal?",
-    a: "Use BiRefNet General for portraits, hair, fur, and complex edges. Use IS-Net General Use for faster product and crisp geometric cutouts.",
+    step: "03",
+    title: "Export at native resolution",
+    desc: "Download lossless transparent PNGs or high-quality JPEGs with zero compression. Temporary files auto-purge within 24 hours.",
+    icon: ShieldCheck,
   },
 ];
 
 export default function HomePage() {
   return (
-    <div className="space-y-24 pb-20">
+    <div className="space-y-16 sm:space-y-24 pb-16 sm:pb-24">
       {/* Hero Section */}
-      <section className="relative overflow-hidden pt-16 sm:pt-24">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2">
-            <div>
-              <div className="inline-flex items-center gap-2 rounded-full border border-violet-200 dark:border-violet-900/60 bg-violet-50 dark:bg-violet-950/40 px-3.5 py-1 text-xs font-medium text-violet-700 dark:text-violet-300 mb-5">
-                <Sparkles className="h-3.5 w-3.5" />
-                Zenvyra AI Photo Studio • Full Resolution
+      <section className="relative overflow-hidden border-b border-zinc-200/70 dark:border-zinc-800/70 bg-studio-grid pt-10 pb-14 sm:pt-20 sm:pb-20">
+        {/* Ambient Studio Glow */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -top-24 left-1/2 -translate-x-1/2 h-[420px] w-[780px] rounded-full bg-gradient-to-tr from-violet-600/15 via-fuchsia-500/10 to-cyan-500/15 blur-3xl"
+        />
+
+        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 items-center gap-10 lg:gap-14 lg:grid-cols-12">
+            <div className="lg:col-span-6">
+              <div className="inline-flex items-center gap-2 rounded-full border border-violet-200/80 dark:border-violet-900/60 bg-white/80 dark:bg-zinc-900/80 px-3.5 py-1 text-xs font-medium text-violet-700 dark:text-violet-300 shadow-sm backdrop-blur-sm mb-5">
+                <Sparkles className="h-3.5 w-3.5 text-violet-500" />
+                <span>Full-Resolution AI Photo Studio</span>
               </div>
 
-              <h1 className="text-4xl sm:text-5xl font-bold tracking-tight leading-[1.1]">
+              <h1 className="text-3xl sm:text-5xl lg:text-[3.25rem] font-bold tracking-tight leading-[1.08] text-zinc-900 dark:text-white">
                 Studio-grade{" "}
                 <span className="bg-gradient-to-r from-violet-600 via-fuchsia-500 to-cyan-500 bg-clip-text text-transparent">
                   AI photo editing
@@ -130,194 +147,200 @@ export default function HomePage() {
                 in your browser.
               </h1>
 
-              <p className="mt-5 text-base sm:text-lg text-zinc-600 dark:text-zinc-400 max-w-xl">
-                Upload any JPG, PNG, or WebP up to 20 MB. Remove backgrounds with
-                BiRefNet, refine edges, touch up with a brush, and export at full
-                resolution.
+              <p className="mt-5 text-base sm:text-lg leading-relaxed text-zinc-600 dark:text-zinc-400 max-w-xl">
+                Remove backgrounds with BiRefNet, upscale 4×, erase unwanted
+                objects, restore vintage portraits, and create compliant IDs—at
+                full native resolution.
               </p>
 
               <div className="mt-7">
                 <PromptCommandBar />
               </div>
 
-              <div className="mt-6 flex flex-wrap items-center gap-3.5">
+              <div className="mt-6 flex flex-wrap items-center gap-3">
                 <a
                   href="#studio"
-                  className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 via-fuchsia-600 to-cyan-600 px-6 py-3.5 text-sm font-semibold text-white shadow-md hover:opacity-95 transition-opacity"
+                  className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 via-fuchsia-600 to-cyan-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-violet-500/20 hover:opacity-95 transition-opacity"
                 >
-                  Try Background Remover
+                  Open Live Studio
                   <ArrowRight className="h-4 w-4" />
                 </a>
                 <a
                   href="#tools"
-                  className="inline-flex items-center gap-2 rounded-xl border border-zinc-200 dark:border-zinc-800 px-5 py-3.5 text-sm font-semibold hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors"
+                  className="inline-flex items-center gap-2 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 px-5 py-3 text-sm font-semibold hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
                 >
-                  Explore Tools
+                  Explore All 6 Tools
                 </a>
               </div>
 
-              <div className="mt-6 flex items-center gap-4 text-xs text-zinc-500 dark:text-zinc-400">
+              <div className="mt-6 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs text-zinc-500 dark:text-zinc-400">
                 <span className="inline-flex items-center gap-1.5">
                   <ShieldCheck className="h-4 w-4 text-emerald-500" />
                   Auto-deleted after 24h
                 </span>
-                <span>•</span>
+                <span aria-hidden="true">•</span>
                 <span>10 free daily credits</span>
-                <span>•</span>
-                <span>No compression</span>
+                <span aria-hidden="true">•</span>
+                <span>Zero compression</span>
               </div>
             </div>
 
-            {/* Live Demo Slider */}
-            <div className="rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4 shadow-xl">
-              <BeforeAfterSlider
-                beforeSrc={DEMO_BEFORE_SVG}
-                afterSrc={DEMO_AFTER_SVG}
-                beforeLabel="Original"
-                afterLabel="Cutout"
-              />
+            {/* Interactive Studio Preview */}
+            <div className="lg:col-span-6">
+              <HeroShowcase />
             </div>
+          </div>
+
+          {/* Capabilities Strip */}
+          <div className="mt-14 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {METRICS.map((m) => {
+              const Icon = m.icon;
+              return (
+                <div
+                  key={m.label}
+                  className="flex items-start gap-3.5 rounded-2xl border border-zinc-200/80 dark:border-zinc-800/80 bg-white/80 dark:bg-zinc-900/60 p-4 backdrop-blur-sm"
+                >
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-violet-500/10 text-violet-600 dark:text-violet-400">
+                    <Icon className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <div className="text-[11px] font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+                      {m.label}
+                    </div>
+                    <div className="text-base font-bold text-zinc-900 dark:text-zinc-100">
+                      {m.value}
+                    </div>
+                    <div className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
+                      {m.detail}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>
 
-      {/* Inline Background Remover Studio */}
+      {/* Inline Multi-Tool Live Studio */}
       <section id="studio" className="scroll-mt-20">
-        <BackgroundRemoverStudio />
+        <LiveStudioWorkspace />
       </section>
 
       {/* Tool Cards */}
-      <section id="tools" className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="mb-10 max-w-2xl">
-          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">
-            One workspace, five AI tools
-          </h2>
-          <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
-            Built step-by-step for speed, full-resolution quality, and clean UX.
-          </p>
+      <section id="tools" className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 scroll-mt-24">
+        <div className="mb-10 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+          <div className="max-w-2xl">
+            <span className="text-xs font-semibold uppercase tracking-wider text-violet-600 dark:text-violet-400">
+              AI Suite
+            </span>
+            <h2 className="mt-1.5 text-2xl sm:text-3xl font-bold tracking-tight">
+              One workspace, six specialized studios
+            </h2>
+            <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
+              Purpose-built AI models engineered for commercial cutouts, restoration, and print-ready output.
+            </p>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {TOOLS.map((tool) => {
             const Icon = tool.icon;
-            const isActive = tool.status === "Active";
             return (
               <Link
                 key={tool.id}
                 href={tool.href}
-                className={`group rounded-2xl border p-6 transition-all ${
-                  isActive
-                    ? "border-violet-300 dark:border-violet-800 bg-white dark:bg-zinc-900 hover:shadow-lg"
-                    : "border-zinc-200 dark:border-zinc-800 bg-white/60 dark:bg-zinc-900/40 opacity-80"
-                }`}
+                className="group relative flex flex-col justify-between rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/70 p-6 transition-all duration-200 hover:-translate-y-0.5 hover:border-violet-400/80 dark:hover:border-violet-700 hover:shadow-xl hover:shadow-violet-500/5"
               >
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-violet-500/10 text-violet-600 dark:text-violet-400">
-                    <Icon className="h-5 w-5" />
+                <div>
+                  <div className="flex items-center justify-between mb-5">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500/15 to-cyan-500/15 text-violet-600 dark:text-violet-400">
+                      <Icon className="h-5 w-5" />
+                    </div>
+                    <span className="rounded-full border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/80 px-2.5 py-0.5 text-[11px] font-medium text-zinc-600 dark:text-zinc-300">
+                      {tool.tag}
+                    </span>
                   </div>
-                  <span
-                    className={`rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${
-                      isActive
-                        ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"
-                        : "bg-zinc-200 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400"
-                    }`}
-                  >
-                    {tool.status}
-                  </span>
+                  <h3 className="text-base font-semibold text-zinc-900 dark:text-zinc-100 group-hover:text-violet-600 dark:group-hover:text-violet-400 transition-colors">
+                    {tool.name}
+                  </h3>
+                  <p className="mt-2 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
+                    {tool.desc}
+                  </p>
                 </div>
-                <h3 className="text-base font-semibold group-hover:text-violet-600 dark:group-hover:text-violet-400 transition-colors">
-                  {tool.name}
-                </h3>
-                <p className="mt-1.5 text-sm text-zinc-600 dark:text-zinc-400">
-                  {tool.desc}
-                </p>
+
+                <div className="mt-5 pt-4 border-t border-zinc-100 dark:border-zinc-800/80 flex items-center justify-between text-xs font-semibold text-violet-600 dark:text-violet-400">
+                  <span>Launch studio</span>
+                  <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                </div>
               </Link>
             );
           })}
         </div>
       </section>
 
-      {/* Pricing */}
-      <section id="pricing" className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="mb-10 max-w-2xl">
-          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">
-            Simple, transparent pricing
-          </h2>
-          <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
-            Start editing immediately with daily free credits.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 max-w-4xl">
-          <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-7">
-            <h3 className="text-lg font-semibold">Free Starter</h3>
-            <div className="mt-2 text-3xl font-bold">
-              $0 <span className="text-sm font-normal text-zinc-500">/ day</span>
-            </div>
-            <ul className="mt-5 space-y-2.5 text-sm text-zinc-600 dark:text-zinc-400">
-              <li className="flex items-center gap-2">
-                <Check className="h-4 w-4 text-emerald-500" />
-                10 free AI edits every day
-              </li>
-              <li className="flex items-center gap-2">
-                <Check className="h-4 w-4 text-emerald-500" />
-                Full-resolution PNG &amp; 96% JPEG export
-              </li>
-              <li className="flex items-center gap-2">
-                <Check className="h-4 w-4 text-emerald-500" />
-                Touch-up brush &amp; edge refinement
-              </li>
-            </ul>
+      {/* Workflow Section */}
+      <section id="workflow" className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 scroll-mt-24">
+        <div className="rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/50 p-6 sm:p-10">
+          <div className="mb-8 max-w-2xl">
+            <span className="text-xs font-semibold uppercase tracking-wider text-violet-600 dark:text-violet-400">
+              Workflow
+            </span>
+            <h2 className="mt-1.5 text-2xl sm:text-3xl font-bold tracking-tight">
+              From raw photo to production asset in seconds
+            </h2>
           </div>
 
-          <div className="rounded-2xl border border-violet-500/60 bg-gradient-to-br from-violet-600/10 via-fuchsia-500/5 to-cyan-500/10 p-7">
-            <h3 className="text-lg font-semibold">Pro Studio</h3>
-            <div className="mt-2 text-3xl font-bold">
-              $12 <span className="text-sm font-normal text-zinc-500">/ month</span>
-            </div>
-            <ul className="mt-5 space-y-2.5 text-sm text-zinc-600 dark:text-zinc-400">
-              <li className="flex items-center gap-2">
-                <Check className="h-4 w-4 text-violet-500" />
-                Unlimited daily AI edits across all 5 tools
-              </li>
-              <li className="flex items-center gap-2">
-                <Check className="h-4 w-4 text-violet-500" />
-                Priority GPU inference queue
-              </li>
-              <li className="flex items-center gap-2">
-                <Check className="h-4 w-4 text-violet-500" />
-                24-hour encrypted cloud history
-              </li>
-            </ul>
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+            {WORKFLOW_STEPS.map((item) => {
+              const Icon = item.icon;
+              return (
+                <div
+                  key={item.step}
+                  className="rounded-2xl border border-zinc-200/80 dark:border-zinc-800 bg-zinc-50/70 dark:bg-zinc-950/60 p-5 sm:p-6"
+                >
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-500/10 text-violet-600 dark:text-violet-400">
+                      <Icon className="h-5 w-5" />
+                    </div>
+                    <span className="font-mono text-xs font-semibold text-zinc-400">
+                      {item.step}
+                    </span>
+                  </div>
+                  <h3 className="text-base font-semibold text-zinc-900 dark:text-zinc-100">
+                    {item.title}
+                  </h3>
+                  <p className="mt-2 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
+                    {item.desc}
+                  </p>
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>
+
+      {/* Pricing */}
+      <PricingSection />
 
       {/* FAQ */}
-      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <h2 className="text-2xl sm:text-3xl font-bold tracking-tight mb-6">
-          Frequently asked questions
-        </h2>
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-          {FAQS.map((item) => (
-            <div
-              key={item.q}
-              className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-5"
-            >
-              <h3 className="text-sm font-semibold">{item.q}</h3>
-              <p className="mt-2 text-xs leading-relaxed text-zinc-600 dark:text-zinc-400">
-                {item.a}
-              </p>
-            </div>
-          ))}
+      <section id="faq" className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 scroll-mt-24">
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
+          <div className="lg:col-span-4">
+            <span className="text-xs font-semibold uppercase tracking-wider text-violet-600 dark:text-violet-400">
+              FAQ
+            </span>
+            <h2 className="mt-1.5 text-2xl sm:text-3xl font-bold tracking-tight">
+              Frequently asked questions
+            </h2>
+            <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
+              Everything you need to know about resolution, privacy, AI models, and credits.
+            </p>
+          </div>
+          <div className="lg:col-span-8">
+            <FaqAccordion />
+          </div>
         </div>
       </section>
-
-      {/* Footer */}
-      <footer className="border-t border-zinc-200 dark:border-zinc-800 pt-8 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-xs text-zinc-500 flex flex-wrap items-center justify-between gap-4">
-        <span>Zenvyra AI Photo Platform</span>
-        <span>Uploaded files are automatically purged after 24 hours.</span>
-      </footer>
     </div>
   );
 }

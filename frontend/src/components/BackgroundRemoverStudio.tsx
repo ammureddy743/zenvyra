@@ -290,7 +290,7 @@ export function BackgroundRemoverStudio() {
           onDragLeave={() => setIsDragging(false)}
           onDrop={handleDrop}
           onClick={() => fileInputRef.current?.click()}
-          className={`flex min-h-[380px] cursor-pointer flex-col items-center justify-center rounded-3xl border-2 border-dashed p-8 text-center transition-all ${
+          className={`flex min-h-[260px] sm:min-h-[380px] cursor-pointer flex-col items-center justify-center rounded-3xl border-2 border-dashed p-5 sm:p-8 text-center transition-all ${
             isDragging
               ? "border-violet-500 bg-violet-50/50 dark:bg-violet-950/20"
               : "border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-900/50 hover:border-violet-400 dark:hover:border-violet-700"
@@ -329,7 +329,7 @@ export function BackgroundRemoverStudio() {
             {resultUrl ? (
               <>
                 {/* View Mode Tabs */}
-                <div className="flex items-center justify-between gap-3">
+                <div className="flex flex-wrap items-center justify-between gap-2 sm:gap-3">
                   <div className="inline-flex rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-1 text-xs font-medium">
                     <button
                       type="button"

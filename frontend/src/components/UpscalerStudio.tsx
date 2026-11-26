@@ -169,7 +169,7 @@ export function UpscalerStudio() {
             if (f) handleSelectedFile(f);
           }}
           onClick={() => fileInputRef.current?.click()}
-          className={`flex min-h-[360px] cursor-pointer flex-col items-center justify-center rounded-3xl border-2 border-dashed p-8 text-center transition-all ${
+          className={`flex min-h-[260px] sm:min-h-[360px] cursor-pointer flex-col items-center justify-center rounded-3xl border-2 border-dashed p-5 sm:p-8 text-center transition-all ${
             isDragging
               ? "border-violet-500 bg-violet-50/50 dark:bg-violet-950/20"
               : "border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-900/50 hover:border-violet-400"

@@ -168,7 +168,7 @@ export function ImageGeneratorStudio() {
               <div className="text-center p-8 text-zinc-500 dark:text-zinc-400">
                 <Wand2 className="h-10 w-10 mx-auto mb-3 text-violet-500 opacity-70" />
                 <p className="text-sm font-medium">
-                  Enter a prompt on the right and click Generate Image
+                  Enter a prompt and click Generate Image
                 </p>
               </div>
             )}
