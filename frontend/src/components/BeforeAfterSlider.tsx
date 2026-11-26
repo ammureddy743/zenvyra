@@ -194,7 +194,31 @@ export function BeforeAfterSlider({
         {/* Divider Line & Handle */}
         <div
           onPointerDown={handlePointerDownSlider}
-          className="absolute inset-y-0 z-10 w-0.5 bg-white shadow-[0_0_8px_rgba(0,0,0,0.5)] cursor-ew-resize"
+          role="slider"
+          tabIndex={0}
+          aria-label="Before and after comparison"
+          aria-orientation="horizontal"
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-valuenow={Math.round(sliderPos)}
+          aria-valuetext={`${Math.round(sliderPos)} percent of original visible`}
+          onKeyDown={(event) => {
+            const step = event.shiftKey ? 10 : 2;
+            if (event.key === "ArrowLeft" || event.key === "ArrowDown") {
+              event.preventDefault();
+              setSliderPos((position) => Math.max(0, position - step));
+            } else if (event.key === "ArrowRight" || event.key === "ArrowUp") {
+              event.preventDefault();
+              setSliderPos((position) => Math.min(100, position + step));
+            } else if (event.key === "Home") {
+              event.preventDefault();
+              setSliderPos(0);
+            } else if (event.key === "End") {
+              event.preventDefault();
+              setSliderPos(100);
+            }
+          }}
+          className="absolute inset-y-0 z-10 w-0.5 cursor-ew-resize bg-white shadow-[0_0_8px_rgba(0,0,0,0.5)] outline-none focus-visible:ring-2 focus-visible:ring-violet-400"
           style={{ left: `${sliderPos}%` }}
         >
           <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full border-2 border-white bg-violet-600 text-white shadow-lg">

@@ -51,6 +51,34 @@ body {
     linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
 }
 
+.feature-card-glow {
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.23), transparent 68%);
+}
+
+.feature-card-create .feature-card-glow {
+  background: radial-gradient(circle, rgba(217, 70, 239, 0.3), transparent 68%);
+}
+
+.feature-card-remove .feature-card-glow {
+  background: radial-gradient(circle, rgba(34, 211, 238, 0.27), transparent 68%);
+}
+
+.feature-card-restore .feature-card-glow {
+  background: radial-gradient(circle, rgba(251, 146, 60, 0.22), transparent 68%);
+}
+
+.feature-card-upscale .feature-card-glow {
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.25), transparent 68%);
+}
+
+.feature-card-retouch .feature-card-glow {
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.22), transparent 68%);
+}
+
+.feature-card-id .feature-card-glow {
+  background: radial-gradient(circle, rgba(244, 114, 182, 0.24), transparent 68%);
+}
+
 @keyframes ambientDriftOne {
   0%, 100% {
     transform: translate3d(0, 0, 0) scale(1);

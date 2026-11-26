@@ -8,8 +8,10 @@ import {
   Eraser,
   ImagePlus,
   Loader2,
+  Redo2,
   RotateCcw,
   Trash2,
+  Undo2,
 } from "lucide-react";
 import { BeforeAfterSlider } from "./BeforeAfterSlider";
 import { useCredits } from "./CreditsContext";
@@ -21,6 +23,8 @@ const ACCEPTED_TYPES = new Set(["image/jpeg", "image/jpg", "image/png", "image/w
 const API_BASE =
   process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") || "http://localhost:8000";
 
+type MaskPoint = { x: number; y: number; radius: number };
+
 export function ObjectRemoverStudio() {
   const { credits, consumeCredit } = useCredits();
   const { consumePendingFile } = useToolHandoff();
@@ -30,12 +34,17 @@ export function ObjectRemoverStudio() {
   const maskCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const isDrawingRef = useRef(false);
   const lastPtRef = useRef<{ x: number; y: number } | null>(null);
+  const maskStrokesRef = useRef<MaskPoint[][]>([]);
+  const activeStrokeRef = useRef<MaskPoint[] | null>(null);
+  const historyIndexRef = useRef(-1);
 
   const [file, setFile] = useState<File | null>(null);
   const [originalUrl, setOriginalUrl] = useState<string | null>(null);
   const [resultUrl, setResultUrl] = useState<string | null>(null);
   const [brushSize, setBrushSize] = useState(32);
   const [hasMask, setHasMask] = useState(false);
+  const [canUndo, setCanUndo] = useState(false);
+  const [canRedo, setCanRedo] = useState(false);
   const [exportFormat, setExportFormat] = useState<"png" | "jpeg">("png");
 
   const [isDragging, setIsDragging] = useState(false);
@@ -63,7 +72,12 @@ export function ObjectRemoverStudio() {
         mCtx.fillRect(0, 0, maskCanvas.width, maskCanvas.height);
       }
       maskCanvasRef.current = maskCanvas;
+      maskStrokesRef.current = [];
+      activeStrokeRef.current = null;
+      historyIndexRef.current = -1;
       setHasMask(false);
+      setCanUndo(false);
+      setCanRedo(false);
     };
     img.src = url;
   }, []);
@@ -108,7 +122,7 @@ export function ObjectRemoverStudio() {
     };
   };
 
-  const paintMask = (
+  const drawMaskSegment = (
     from: { x: number; y: number },
     to: { x: number; y: number },
     radius: number
@@ -137,7 +151,71 @@ export function ObjectRemoverStudio() {
       maskCtx.arc(x, y, radius, 0, Math.PI * 2);
       maskCtx.fill();
     }
+  };
+
+  const paintMask = (
+    from: { x: number; y: number },
+    to: { x: number; y: number },
+    radius: number
+  ) => {
+    drawMaskSegment(from, to, radius);
     setHasMask(true);
+  };
+
+  const renderMaskHistory = (throughIndex: number) => {
+    const overlay = overlayCanvasRef.current;
+    const mask = maskCanvasRef.current;
+    const image = imgRef.current;
+    const overlayCtx = overlay?.getContext("2d");
+    const maskCtx = mask?.getContext("2d");
+    if (!overlay || !mask || !image || !overlayCtx || !maskCtx) return;
+
+    overlayCtx.clearRect(0, 0, overlay.width, overlay.height);
+    overlayCtx.drawImage(image, 0, 0);
+    maskCtx.fillStyle = "#000000";
+    maskCtx.fillRect(0, 0, mask.width, mask.height);
+
+    for (let strokeIndex = 0; strokeIndex <= throughIndex; strokeIndex++) {
+      const stroke = maskStrokesRef.current[strokeIndex];
+      for (let pointIndex = 0; pointIndex < stroke.length; pointIndex++) {
+        const point = stroke[pointIndex];
+        const previous = stroke[pointIndex - 1] ?? point;
+        drawMaskSegment(previous, point, point.radius);
+      }
+    }
+    setHasMask(throughIndex >= 0);
+  };
+
+  const finishMaskStroke = () => {
+    isDrawingRef.current = false;
+    lastPtRef.current = null;
+    const stroke = activeStrokeRef.current;
+    activeStrokeRef.current = null;
+    if (!stroke?.length) return;
+
+    const nextStrokes = maskStrokesRef.current.slice(0, historyIndexRef.current + 1);
+    nextStrokes.push(stroke);
+    if (nextStrokes.length > 40) nextStrokes.shift();
+    maskStrokesRef.current = nextStrokes;
+    historyIndexRef.current = nextStrokes.length - 1;
+    setCanUndo(historyIndexRef.current >= 0);
+    setCanRedo(false);
+  };
+
+  const undoMaskStroke = () => {
+    if (historyIndexRef.current < 0) return;
+    historyIndexRef.current -= 1;
+    renderMaskHistory(historyIndexRef.current);
+    setCanUndo(historyIndexRef.current >= 0);
+    setCanRedo(true);
+  };
+
+  const redoMaskStroke = () => {
+    if (historyIndexRef.current >= maskStrokesRef.current.length - 1) return;
+    historyIndexRef.current += 1;
+    renderMaskHistory(historyIndexRef.current);
+    setCanUndo(true);
+    setCanRedo(historyIndexRef.current < maskStrokesRef.current.length - 1);
   };
 
   const clearMask = () => {
@@ -318,6 +396,7 @@ export function ObjectRemoverStudio() {
                     isDrawingRef.current = true;
                     const pt = getPoint(e);
                     lastPtRef.current = { x: pt.x, y: pt.y };
+                    activeStrokeRef.current = [{ x: pt.x, y: pt.y, radius: pt.radius }];
                     paintMask(lastPtRef.current, lastPtRef.current, pt.radius);
                   }}
                   onPointerMove={(e) => {
@@ -325,11 +404,10 @@ export function ObjectRemoverStudio() {
                     const pt = getPoint(e);
                     paintMask(lastPtRef.current, { x: pt.x, y: pt.y }, pt.radius);
                     lastPtRef.current = { x: pt.x, y: pt.y };
+                    activeStrokeRef.current?.push({ x: pt.x, y: pt.y, radius: pt.radius });
                   }}
-                  onPointerUp={() => {
-                    isDrawingRef.current = false;
-                    lastPtRef.current = null;
-                  }}
+                  onPointerUp={finishMaskStroke}
+                  onPointerCancel={finishMaskStroke}
                   className="max-h-full max-w-full cursor-crosshair touch-none object-contain"
                 />
                 {isProcessing && (
@@ -357,6 +435,27 @@ export function ObjectRemoverStudio() {
                   onChange={(e) => setBrushSize(Number(e.target.value))}
                   className="w-full accent-violet-600"
                 />
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={undoMaskStroke}
+                  disabled={!canUndo || isProcessing}
+                  className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-zinc-200 py-2 text-xs font-medium transition hover:bg-zinc-100 disabled:cursor-not-allowed disabled:opacity-40 dark:border-zinc-800 dark:hover:bg-zinc-800"
+                  aria-label="Undo last brush stroke"
+                >
+                  <Undo2 className="h-3.5 w-3.5" /> Undo
+                </button>
+                <button
+                  type="button"
+                  onClick={redoMaskStroke}
+                  disabled={!canRedo || isProcessing}
+                  className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-zinc-200 py-2 text-xs font-medium transition hover:bg-zinc-100 disabled:cursor-not-allowed disabled:opacity-40 dark:border-zinc-800 dark:hover:bg-zinc-800"
+                  aria-label="Redo last brush stroke"
+                >
+                  <Redo2 className="h-3.5 w-3.5" /> Redo
+                </button>
               </div>
 
               <button
