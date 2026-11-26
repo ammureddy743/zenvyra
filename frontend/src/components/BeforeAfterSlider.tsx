@@ -9,6 +9,8 @@ interface BeforeAfterSliderProps {
   beforeLabel?: string;
   afterLabel?: string;
   previewBgColor?: string | null;
+  previewBgImage?: string | null;
+  previewBgGradient?: string | null;
 }
 
 export function BeforeAfterSlider({
@@ -17,6 +19,8 @@ export function BeforeAfterSlider({
   beforeLabel = "Original",
   afterLabel = "Result",
   previewBgColor = null,
+  previewBgImage = null,
+  previewBgGradient = null,
 }: BeforeAfterSliderProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [sliderPos, setSliderPos] = useState(50);
@@ -132,9 +136,21 @@ export function BeforeAfterSlider({
         onPointerUp={handlePointerUp}
         onPointerCancel={handlePointerUp}
         className={`relative aspect-[4/3] w-full overflow-hidden rounded-2xl border border-zinc-200 dark:border-zinc-800 select-none touch-none ${
-          previewBgColor ? "" : "bg-checkerboard"
+          previewBgColor || previewBgImage || previewBgGradient ? "" : "bg-checkerboard"
         } ${zoom > 1 ? "cursor-grab active:cursor-grabbing" : "cursor-ew-resize"}`}
-        style={previewBgColor ? { backgroundColor: previewBgColor } : undefined}
+        style={
+          previewBgImage
+            ? {
+                backgroundImage: `url(${previewBgImage})`,
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+              }
+            : previewBgGradient
+            ? { backgroundImage: previewBgGradient }
+            : previewBgColor
+            ? { backgroundColor: previewBgColor }
+            : undefined
+        }
       >
         {/* Transformable Layer */}
         <div
