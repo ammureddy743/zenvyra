@@ -60,6 +60,7 @@ export function ImageGeneratorStudio() {
 
   const [mediaUrl, setMediaUrl] = useState<string | null>(null);
   const [generatedKind, setGeneratedKind] = useState<MediaMode>("image");
+  const [generatedStyle, setGeneratedStyle] = useState<string>("photorealistic");
   const [isGenerating, setIsGenerating] = useState(false);
   const [elapsedSec, setElapsedSec] = useState(0);
   const [processingMs, setProcessingMs] = useState<number | null>(null);
@@ -134,6 +135,7 @@ export function ImageGeneratorStudio() {
         const blob = await res.blob();
         setMediaUrl(URL.createObjectURL(blob));
         setGeneratedKind(targetMode);
+        setGeneratedStyle(style);
         consumeCredit();
       } catch (err) {
         setErrorMsg(
@@ -201,12 +203,12 @@ export function ImageGeneratorStudio() {
                 {generatedKind === "video" ? (
                   <>
                     <Film className="h-3.5 w-3.5" />
-                    Motion Video ({durationSec}s loop)
+                    Motion Video ({durationSec}s loop • {STYLES.find((s) => s.id === generatedStyle)?.label ?? generatedStyle})
                   </>
                 ) : (
                   <>
                     <ImageIcon className="h-3.5 w-3.5" />
-                    High-Res Image
+                    High-Res Image • {STYLES.find((s) => s.id === generatedStyle)?.label ?? generatedStyle}
                   </>
                 )}
               </span>
