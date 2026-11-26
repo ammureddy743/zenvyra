@@ -6,6 +6,7 @@ import { ArrowRight, Sparkles } from "lucide-react";
 
 const QUICK_PROMPTS = [
   "Generate: Neon cyberpunk city at night",
+  "Video: Ocean waves at golden sunset",
   "Remove background",
   "Upscale 4x sharper",
   "Remove unwanted object",
@@ -17,9 +18,24 @@ function resolvePromptRoute(promptText: string): string {
   const raw = promptText.trim();
   const q = raw.toLowerCase();
 
+  if (
+    q.startsWith("video:") ||
+    q.startsWith("animate:") ||
+    q.includes(" video") ||
+    q.startsWith("video ") ||
+    q.includes("animate ") ||
+    q.includes("animation") ||
+    q.includes("motion clip")
+  ) {
+    const cleaned = raw
+      .replace(/^(video:|animate:|create a video of|generate a video of|make a video of)\s*/i, "")
+      .trim();
+    return `/tools/image-generator?mode=video&prompt=${encodeURIComponent(cleaned || raw)}`;
+  }
+
   if (q.startsWith("generate:") || q.startsWith("create:") || q.startsWith("draw ")) {
     const cleaned = raw.replace(/^(generate:|create:|draw\s+)/i, "").trim();
-    return `/tools/image-generator?prompt=${encodeURIComponent(cleaned)}`;
+    return `/tools/image-generator?mode=image&prompt=${encodeURIComponent(cleaned)}`;
   }
 
   if (q.includes("passport") || q.includes("visa") || q.includes("id photo")) {
@@ -58,8 +74,8 @@ function resolvePromptRoute(promptText: string): string {
     return "/tools/background-remover";
   }
 
-  // Any other descriptive prompt creates a brand-new AI image
-  return `/tools/image-generator?prompt=${encodeURIComponent(raw)}`;
+  // Any other descriptive prompt generates a brand-new AI image
+  return `/tools/image-generator?mode=image&prompt=${encodeURIComponent(raw)}`;
 }
 
 export function PromptCommandBar() {
@@ -68,7 +84,7 @@ export function PromptCommandBar() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const target = resolvePromptRoute(prompt.trim() || "remove background");
+    const target = resolvePromptRoute(prompt.trim() || "Neon cyberpunk city at night");
     router.push(target);
   };
 
@@ -84,7 +100,7 @@ export function PromptCommandBar() {
             type="text"
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
-            placeholder="Create an image or pick an edit (e.g. 'Neon city at night' or 'Upscale 4x')..."
+            placeholder="Generate an image or video, or pick an edit (e.g. 'Video: Ocean waves at sunset')..."
             className="w-full bg-transparent py-2 text-sm outline-none placeholder:text-zinc-400"
           />
         </div>

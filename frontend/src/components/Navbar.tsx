@@ -58,8 +58,8 @@ const TOOL_MENU = [
   },
   {
     href: "/tools/image-generator",
-    label: "AI Image Generator",
-    desc: "Create studio visuals from prompts",
+    label: "AI Image & Video",
+    desc: "Generate images & motion videos",
     icon: Sparkles,
   },
 ];

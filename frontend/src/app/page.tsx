@@ -91,9 +91,9 @@ const TOOLS = [
   },
   {
     id: "image-generator",
-    name: "AI Image Generator",
-    tag: "Text-to-Image",
-    desc: "Generate studio-grade artwork, product concepts, and photorealistic scenes from any text prompt.",
+    name: "AI Image & Video Generator",
+    tag: "Text-to-Media",
+    desc: "Generate studio-grade images and animated motion videos from any text prompt.",
     href: "/tools/image-generator",
     icon: Sparkles,
   },

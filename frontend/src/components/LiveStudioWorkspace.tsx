@@ -30,7 +30,7 @@ const STUDIO_TABS: { id: StudioId; label: string; icon: typeof Scissors }[] = [
   { id: "object-remover", label: "Object Remover", icon: Eraser },
   { id: "photo-restorer", label: "Photo Restorer", icon: Wand2 },
   { id: "passport-maker", label: "Passport Maker", icon: UserSquare2 },
-  { id: "image-generator", label: "AI Generator", icon: Sparkles },
+  { id: "image-generator", label: "Image & Video", icon: Sparkles },
 ];
 
 export function LiveStudioWorkspace() {

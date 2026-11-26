@@ -15,6 +15,7 @@ from app.services.bg_remover import (
 )
 from app.services.cleanup import periodic_cleanup_loop, purge_expired_files
 from app.services.image_generator import generate_image_from_prompt
+from app.services.video_generator import MotionType, generate_video_from_prompt
 from app.services.object_remover import process_object_removal
 from app.services.passport_maker import PassportPreset, process_passport_photo
 from app.services.photo_restorer import process_photo_restoration
@@ -351,6 +352,50 @@ async def generate_image(
         headers={
             "X-Original-Width": str(result.width),
             "X-Original-Height": str(result.height),
+            "X-Processing-Ms": str(result.processing_ms),
+            "Cache-Control": "no-store",
+        },
+    )
+
+
+@app.post(f"{settings.api_v1_prefix}/generate-video")
+async def generate_video(
+    prompt: str = Form(...),
+    style: str = Form("photorealistic"),
+    motion: MotionType = Form("zoom-in"),
+    duration_sec: int = Form(3),
+    width: int = Form(768),
+    height: int = Form(432),
+):
+    clean = prompt.strip()
+    if len(clean) < 2:
+        raise HTTPException(status_code=400, detail="Please enter a prompt to generate a video.")
+    if len(clean) > 1000:
+        raise HTTPException(status_code=400, detail="Prompt must be under 1000 characters.")
+
+    try:
+        result = await generate_video_from_prompt(
+            prompt=clean,
+            style=style,
+            motion=motion,
+            duration_sec=duration_sec,
+            width=width,
+            height=height,
+        )
+    except Exception as exc:
+        logger.exception("Video generation failed: %s", exc)
+        raise HTTPException(
+            status_code=502,
+            detail="Video generation service is busy or unavailable. Please try again.",
+        )
+
+    return Response(
+        content=result.video_bytes,
+        media_type=result.content_type,
+        headers={
+            "X-Original-Width": str(result.width),
+            "X-Original-Height": str(result.height),
+            "X-Duration-Sec": str(result.duration_sec),
             "X-Processing-Ms": str(result.processing_ms),
             "Cache-Control": "no-store",
         },
