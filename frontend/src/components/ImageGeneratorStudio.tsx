@@ -13,6 +13,7 @@ import {
   Wand2,
 } from "lucide-react";
 import { useCredits } from "./CreditsContext";
+import { SendToToolBar } from "./SendToToolBar";
 
 const API_BASE =
   process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") || "http://localhost:8000";
@@ -438,14 +439,23 @@ export function ImageGeneratorStudio() {
             </button>
 
             {mediaUrl && (
-              <button
-                type="button"
-                onClick={handleDownload}
-                className="flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors"
-              >
-                <Download className="h-4 w-4" />
-                Download {generatedKind === "video" ? "Video" : "Image"}
-              </button>
+              <>
+                <button
+                  type="button"
+                  onClick={handleDownload}
+                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors"
+                >
+                  <Download className="h-4 w-4" />
+                  Download {generatedKind === "video" ? "Video" : "Image"}
+                </button>
+                {generatedKind === "image" && (
+                  <SendToToolBar
+                    imageUrl={mediaUrl}
+                    filename="zenvyra-generated.jpg"
+                    currentTool="image-generator"
+                  />
+                )}
+              </>
             )}
           </div>
         </div>

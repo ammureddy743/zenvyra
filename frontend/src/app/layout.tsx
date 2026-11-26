@@ -4,6 +4,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { AuthProvider } from "@/components/AuthContext";
 import { CreditsProvider } from "@/components/CreditsContext";
+import { ToolHandoffProvider } from "@/components/ToolHandoffContext";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { AmbientBackground } from "@/components/AmbientBackground";
@@ -40,9 +41,11 @@ export default function RootLayout({
         <ThemeProvider>
           <AuthProvider>
             <CreditsProvider>
-              <Navbar />
-              <main className="flex-1">{children}</main>
-              <Footer />
+              <ToolHandoffProvider>
+                <Navbar />
+                <main className="flex-1">{children}</main>
+                <Footer />
+              </ToolHandoffProvider>
             </CreditsProvider>
           </AuthProvider>
         </ThemeProvider>

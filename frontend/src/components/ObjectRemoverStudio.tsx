@@ -13,6 +13,8 @@ import {
 } from "lucide-react";
 import { BeforeAfterSlider } from "./BeforeAfterSlider";
 import { useCredits } from "./CreditsContext";
+import { useToolHandoff } from "./ToolHandoffContext";
+import { SendToToolBar } from "./SendToToolBar";
 
 const MAX_BYTES = 20 * 1024 * 1024;
 const ACCEPTED_TYPES = new Set(["image/jpeg", "image/jpg", "image/png", "image/webp"]);
@@ -21,6 +23,7 @@ const API_BASE =
 
 export function ObjectRemoverStudio() {
   const { credits, consumeCredit } = useCredits();
+  const { consumePendingFile } = useToolHandoff();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const imgRef = useRef<HTMLImageElement | null>(null);
   const overlayCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -70,6 +73,12 @@ export function ObjectRemoverStudio() {
       initCanvases(originalUrl);
     }
   }, [originalUrl, resultUrl, initCanvases]);
+
+  useEffect(() => {
+    const incoming = consumePendingFile();
+    if (incoming) handleSelectedFile(incoming);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleSelectedFile = useCallback((selected: File) => {
     setErrorMsg(null);
@@ -396,14 +405,21 @@ export function ObjectRemoverStudio() {
               </button>
 
               {resultUrl && (
-                <button
-                  type="button"
-                  onClick={handleDownload}
-                  className="w-full flex items-center justify-center gap-2 rounded-xl bg-zinc-900 dark:bg-white px-4 py-2.5 text-sm font-semibold text-white dark:text-zinc-900"
-                >
-                  <Download className="h-4 w-4" />
-                  Download {exportFormat.toUpperCase()}
-                </button>
+                <>
+                  <button
+                    type="button"
+                    onClick={handleDownload}
+                    className="w-full flex items-center justify-center gap-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors"
+                  >
+                    <Download className="h-4 w-4" />
+                    Download {exportFormat.toUpperCase()}
+                  </button>
+                  <SendToToolBar
+                    imageUrl={resultUrl}
+                    filename={file?.name || "zenvyra-cleaned.png"}
+                    currentTool="object-remover"
+                  />
+                </>
               )}
             </div>
           </div>

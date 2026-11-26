@@ -20,6 +20,8 @@ import {
 import { BeforeAfterSlider } from "./BeforeAfterSlider";
 import { BrushTouchupCanvas } from "./BrushTouchupCanvas";
 import { useCredits } from "./CreditsContext";
+import { useToolHandoff } from "./ToolHandoffContext";
+import { SendToToolBar } from "./SendToToolBar";
 
 const MAX_BYTES = 20 * 1024 * 1024;
 const ACCEPTED_TYPES = new Set(["image/jpeg", "image/jpg", "image/png", "image/webp"]);
@@ -147,6 +149,7 @@ async function svgToPngFile(svg: string, filename: string): Promise<File> {
 
 export function BackgroundRemoverStudio() {
   const { credits, consumeCredit } = useCredits();
+  const { consumePendingFile } = useToolHandoff();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const bgFileInputRef = useRef<HTMLInputElement>(null);
 
@@ -179,6 +182,12 @@ export function BackgroundRemoverStudio() {
 
   useEffect(() => {
     fetch(`${API_BASE}/health`).catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    const incoming = consumePendingFile();
+    if (incoming) handleSelectedFile(incoming);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -949,6 +958,12 @@ export function BackgroundRemoverStudio() {
                     <Download className="h-4 w-4" />
                     Download {exportFormat.toUpperCase()}
                   </button>
+
+                  <SendToToolBar
+                    imageUrl={resultUrl}
+                    filename={file?.name || "zenvyra-cutout.png"}
+                    currentTool="background-remover"
+                  />
                 </div>
               )}
             </div>
