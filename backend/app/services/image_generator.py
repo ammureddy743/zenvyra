@@ -7,33 +7,33 @@ from urllib.parse import quote
 
 import httpx
 import numpy as np
-from PIL import Image, ImageOps
+from PIL import Image, ImageFilter, ImageOps
 
 STYLE_PRESETS: dict[str, dict[str, str]] = {
     "photorealistic": {
-        "prefix": "raw photograph, DSLR 35mm, ",
-        "suffix": ", photorealistic, ultra detailed, natural lighting, sharp focus, 8k",
-        "negative": "anime, cartoon, illustration, painting, 3d render, drawing, sketch",
+        "prefix": "masterpiece raw photograph, DSLR 35mm, ",
+        "suffix": ", photorealistic, ultra detailed, crisp focus, natural lighting, 8k uhd",
+        "negative": "blurry, lowres, jpeg artifacts, soft focus, out of focus, anime, cartoon, illustration, painting, 3d render, sketch",
     },
     "digital-art": {
-        "prefix": "digital illustration, concept art, ",
-        "suffix": ", vibrant colors, crisp painterly detail, artstation",
-        "negative": "photograph, raw photo, blurry, low quality",
+        "prefix": "masterpiece digital illustration, concept art, ",
+        "suffix": ", vibrant colors, crisp painterly detail, sharp focus, artstation",
+        "negative": "blurry, lowres, jpeg artifacts, photograph, raw photo, out of focus",
     },
     "anime": {
-        "prefix": "anime key visual, cel shaded, studio anime artwork, ",
-        "suffix": ", clean lineart, vibrant anime aesthetic, detailed anime background",
-        "negative": "photorealistic, real life photograph, 3d render, blurry",
+        "prefix": "masterpiece anime key visual, cel shaded, studio anime artwork, ",
+        "suffix": ", clean sharp lineart, vibrant anime aesthetic, detailed background",
+        "negative": "blurry, lowres, jpeg artifacts, photorealistic, real life photograph, 3d render",
     },
     "3d-render": {
-        "prefix": "3d octane render, blender cycles, ",
-        "suffix": ", studio volumetric lighting, smooth PBR materials, 3d stylized",
-        "negative": "2d, flat, sketch, anime, hand drawn, photograph",
+        "prefix": "masterpiece 3d octane render, unreal engine 5, blender cycles, ",
+        "suffix": ", studio volumetric lighting, smooth PBR materials, sharp focus, 3d stylized",
+        "negative": "blurry, lowres, jpeg artifacts, 2d, flat, sketch, anime, hand drawn, out of focus",
     },
     "minimalist": {
-        "prefix": "minimalist graphic art, ",
-        "suffix": ", clean geometric composition, flat colors, modern minimal aesthetic, negative space",
-        "negative": "cluttered, busy, photorealistic, noisy, complex texture",
+        "prefix": "clean minimalist graphic art, ",
+        "suffix": ", crisp geometric composition, flat colors, modern minimal aesthetic, sharp edges",
+        "negative": "blurry, lowres, cluttered, busy, photorealistic, noisy, complex texture",
     },
 }
 
@@ -67,8 +67,9 @@ def _fit_to_target(image_bytes: bytes, target_w: int, target_h: int) -> bytes:
         if rgb.size == (target_w, target_h):
             return image_bytes
         fitted = ImageOps.fit(rgb, (target_w, target_h), method=Image.Resampling.LANCZOS)
+        fitted = fitted.filter(ImageFilter.UnsharpMask(radius=1.2, percent=115, threshold=3))
         out = BytesIO()
-        fitted.save(out, format="JPEG", quality=94)
+        fitted.save(out, format="JPEG", quality=96)
         return out.getvalue()
 
 
@@ -117,8 +118,8 @@ async def _try_aihorde(
     safe_h: int,
 ) -> tuple[bytes, str]:
     """Fallback to AI Horde anonymous text-to-image queue."""
-    # AI Horde anonymous tier requires <= 610x610 and <= 15 steps (no kudos upfront)
-    horde_w, horde_h = 512, 512
+    # AI Horde anonymous tier allows up to 576x576 with 20 steps & k_dpmpp_2m without kudos upfront
+    horde_w, horde_h = 576, 576
     horde_prompt = (
         f"{full_prompt} ### {negative_prompt}" if negative_prompt else full_prompt
     )
@@ -131,7 +132,14 @@ async def _try_aihorde(
         "https://aihorde.net/api/v2/generate/async",
         json={
             "prompt": horde_prompt,
-            "params": {"width": horde_w, "height": horde_h, "steps": 15, "n": 1},
+            "params": {
+                "width": horde_w,
+                "height": horde_h,
+                "steps": 20,
+                "sampler_name": "k_dpmpp_2m",
+                "karras": True,
+                "n": 1,
+            },
             "nsfw": False,
         },
         headers=headers,

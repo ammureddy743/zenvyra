@@ -225,7 +225,7 @@ export function Navbar() {
               <button
                 type="button"
                 onClick={() => setAuthOpen(true)}
-                className="inline-flex items-center gap-1.5 rounded-lg bg-zinc-900 dark:bg-white px-2.5 sm:px-3.5 py-2 text-xs font-semibold text-white dark:text-zinc-900 hover:opacity-90 transition-opacity"
+                className="inline-flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-violet-600 to-indigo-600 px-2.5 sm:px-3.5 py-2 text-xs font-semibold text-white shadow-sm hover:opacity-95 transition-opacity"
               >
                 <LogIn className="h-3.5 w-3.5" />
                 <span>Sign In</span>

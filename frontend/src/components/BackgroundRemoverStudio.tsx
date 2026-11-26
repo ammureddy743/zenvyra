@@ -944,7 +944,7 @@ export function BackgroundRemoverStudio() {
                   <button
                     type="button"
                     onClick={handleDownload}
-                    className="w-full flex items-center justify-center gap-2 rounded-xl bg-zinc-900 dark:bg-white px-4 py-2.5 text-sm font-semibold text-white dark:text-zinc-900 hover:opacity-90 transition-opacity"
+                    className="w-full flex items-center justify-center gap-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors"
                   >
                     <Download className="h-4 w-4" />
                     Download {exportFormat.toUpperCase()}

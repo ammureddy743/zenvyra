@@ -6,6 +6,7 @@ import { AuthProvider } from "@/components/AuthContext";
 import { CreditsProvider } from "@/components/CreditsContext";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
+import { AmbientBackground } from "@/components/AmbientBackground";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -34,7 +35,8 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased dark`}
       suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col overflow-x-hidden bg-zinc-50 text-zinc-900 dark:bg-zinc-950 dark:text-zinc-100">
+      <body className="relative min-h-full flex flex-col overflow-x-hidden bg-zinc-50 text-zinc-900 dark:bg-zinc-950 dark:text-zinc-100">
+        <AmbientBackground />
         <ThemeProvider>
           <AuthProvider>
             <CreditsProvider>

@@ -441,7 +441,7 @@ export function ImageGeneratorStudio() {
               <button
                 type="button"
                 onClick={handleDownload}
-                className="flex w-full items-center justify-center gap-2 rounded-xl bg-zinc-900 dark:bg-white py-2.5 text-sm font-semibold text-white dark:text-zinc-900 hover:opacity-90"
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors"
               >
                 <Download className="h-4 w-4" />
                 Download {generatedKind === "video" ? "Video" : "Image"}

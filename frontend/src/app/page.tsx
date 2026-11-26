@@ -124,7 +124,7 @@ export default function HomePage() {
   return (
     <div className="space-y-16 sm:space-y-24 pb-16 sm:pb-24">
       {/* Hero Section */}
-      <section className="relative overflow-hidden border-b border-zinc-200/70 dark:border-zinc-800/70 bg-studio-grid pt-10 pb-14 sm:pt-20 sm:pb-20">
+      <section className="relative overflow-hidden border-b border-zinc-200/70 dark:border-zinc-800/70 pt-10 pb-14 sm:pt-20 sm:pb-20">
         {/* Ambient Studio Glow */}
         <div
           aria-hidden="true"
