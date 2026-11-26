@@ -6,6 +6,7 @@ import time
 from urllib.parse import quote
 
 import httpx
+import numpy as np
 from PIL import Image, ImageOps
 
 STYLE_PRESETS: dict[str, dict[str, str]] = {
@@ -44,6 +45,19 @@ class GeneratedImageResult:
     width: int
     height: int
     processing_ms: int
+
+
+def _is_censored_placeholder(image_bytes: bytes) -> bool:
+    """Detect black-and-white CENSORED placeholder images returned by faulty workers."""
+    try:
+        with Image.open(BytesIO(image_bytes)) as img:
+            arr = np.asarray(img.convert("RGB").resize((128, 128)), dtype=np.uint8)
+            # Check if image is almost entirely monochrome black & white
+            channel_spread = np.max(arr, axis=2) - np.min(arr, axis=2)
+            bw_ratio = float(np.mean((arr.mean(axis=2) < 20) | (arr.mean(axis=2) > 235)))
+            return float(np.mean(channel_spread)) < 3.0 and bw_ratio > 0.80
+    except Exception:
+        return False
 
 
 def _fit_to_target(image_bytes: bytes, target_w: int, target_h: int) -> bytes:
@@ -134,9 +148,14 @@ async def _try_aihorde(
         status_resp.raise_for_status()
         data = status_resp.json()
         if data.get("done") and data.get("generations"):
-            img_url = data["generations"][0]["img"]
+            gen = data["generations"][0]
+            if gen.get("censored"):
+                raise RuntimeError("AI Horde worker returned a censored placeholder.")
+            img_url = gen["img"]
             img_resp = await client.get(img_url)
             img_resp.raise_for_status()
+            if _is_censored_placeholder(img_resp.content):
+                raise RuntimeError("AI Horde worker returned a monochrome censored placeholder.")
             fitted = _fit_to_target(img_resp.content, safe_w, safe_h)
             return fitted, "image/jpeg"
         if data.get("faulted"):

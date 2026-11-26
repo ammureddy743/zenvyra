@@ -61,6 +61,9 @@ export function ImageGeneratorStudio() {
   const [mediaUrl, setMediaUrl] = useState<string | null>(null);
   const [generatedKind, setGeneratedKind] = useState<MediaMode>("image");
   const [generatedStyle, setGeneratedStyle] = useState<string>("photorealistic");
+  const [generatedRatioId, setGeneratedRatioId] = useState<string>(
+    initialMode === "video" ? "16:9" : "1:1"
+  );
   const [isGenerating, setIsGenerating] = useState(false);
   const [elapsedSec, setElapsedSec] = useState(0);
   const [processingMs, setProcessingMs] = useState<number | null>(null);
@@ -136,6 +139,7 @@ export function ImageGeneratorStudio() {
         setMediaUrl(URL.createObjectURL(blob));
         setGeneratedKind(targetMode);
         setGeneratedStyle(style);
+        setGeneratedRatioId(ratioId);
         consumeCredit();
       } catch (err) {
         setErrorMsg(
@@ -219,33 +223,46 @@ export function ImageGeneratorStudio() {
             </div>
           )}
 
-          <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-900 flex items-center justify-center">
-            {mediaUrl ? (
-              <img
-                src={mediaUrl}
-                alt={prompt || "Generated AI media"}
-                className="max-h-full max-w-full object-contain"
-              />
-            ) : (
-              <div className="text-center p-6 sm:p-8 text-zinc-500 dark:text-zinc-400">
-                <Wand2 className="h-10 w-10 mx-auto mb-3 text-violet-500 opacity-70" />
-                <p className="text-sm font-medium">
-                  Enter a prompt and click Generate {mode === "video" ? "Video" : "Image"}
-                </p>
-              </div>
-            )}
+          {(() => {
+            const activeRatio = mediaUrl ? generatedRatioId : ratioId;
+            const frameClass =
+              activeRatio === "16:9"
+                ? "aspect-video w-full"
+                : activeRatio === "9:16"
+                ? "aspect-[9/16] w-full max-w-[360px] mx-auto"
+                : "aspect-square w-full max-w-[540px] mx-auto";
+            return (
+              <div
+                className={`relative ${frameClass} overflow-hidden rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-900 flex items-center justify-center`}
+              >
+                {mediaUrl ? (
+                  <img
+                    src={mediaUrl}
+                    alt={prompt || "Generated AI media"}
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <div className="text-center p-6 sm:p-8 text-zinc-500 dark:text-zinc-400">
+                    <Wand2 className="h-10 w-10 mx-auto mb-3 text-violet-500 opacity-70" />
+                    <p className="text-sm font-medium">
+                      Enter a prompt and click Generate {mode === "video" ? "Video" : "Image"}
+                    </p>
+                  </div>
+                )}
 
-            {isGenerating && (
-              <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm text-white p-6 text-center">
-                <Loader2 className="h-10 w-10 animate-spin text-violet-400 mb-3" />
-                <p className="text-sm font-semibold">
-                  {mode === "video"
-                    ? `Rendering ${durationSec}s motion video... (${elapsedSec}s)`
-                    : `Generating your image... (${elapsedSec}s)`}
-                </p>
+                {isGenerating && (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm text-white p-6 text-center">
+                    <Loader2 className="h-10 w-10 animate-spin text-violet-400 mb-3" />
+                    <p className="text-sm font-semibold">
+                      {mode === "video"
+                        ? `Rendering ${durationSec}s motion video... (${elapsedSec}s)`
+                        : `Generating your image... (${elapsedSec}s)`}
+                    </p>
+                  </div>
+                )}
               </div>
-            )}
-          </div>
+            );
+          })()}
         </div>
 
         {/* Controls */}
