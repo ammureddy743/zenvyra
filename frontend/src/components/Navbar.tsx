@@ -188,6 +188,16 @@ export function Navbar() {
             >
               FAQ
             </Link>
+            <Link
+              href="/admin"
+              className={`text-sm font-medium transition-colors ${
+                pathname === "/admin"
+                  ? "text-violet-600 dark:text-violet-400"
+                  : "text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
+              }`}
+            >
+              Admin
+            </Link>
           </nav>
 
           {/* Right Actions */}

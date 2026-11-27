@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 
 from app.config import get_settings
+from app.services.admin_metrics import get_admin_metrics
 from app.services.bg_remover import SUPPORTED_MODELS
 
 router = APIRouter(tags=["Health & Discovery"])
@@ -44,3 +45,8 @@ async def list_tools():
             {"id": "image-generator", "name": "AI Image & Video Generator", "status": "active"},
         ]
     }
+
+
+@router.get(f"{settings.api_v1_prefix}/admin/metrics")
+async def admin_metrics():
+    return get_admin_metrics()
