@@ -84,22 +84,25 @@ def get_admin_metrics() -> dict:
 
     if settings.supabase_url and settings.supabase_service_role_key:
         try:
+            from postgrest.types import CountMethod
             from supabase import create_client
 
             sb = create_client(settings.supabase_url, settings.supabase_service_role_key)
-            users_res = sb.table("profiles").select("id", count="exact").execute()
+            users_res = sb.table("profiles").select("id", count=CountMethod.exact).execute()
             total_users = users_res.count if users_res.count is not None else len(users_res.data or [])
 
             jobs_res = sb.table("admin_tool_metrics").select("*").execute()
             for row in jobs_res.data or []:
+                if not isinstance(row, dict):
+                    continue
                 tid = row.get("tool_id")
-                if tid in tool_rows:
+                if isinstance(tid, str) and tid in tool_rows:
                     tool_rows[tid] = {
                         "tool_id": tid,
-                        "total_runs": int(row.get("total_runs") or 0),
-                        "successful_runs": int(row.get("successful_runs") or 0),
-                        "error_count": int(row.get("error_count") or 0),
-                        "avg_processing_ms": int(row.get("avg_processing_ms") or 0),
+                        "total_runs": int(row.get("total_runs") or 0) if isinstance(row.get("total_runs"), (int, float, str)) else 0,
+                        "successful_runs": int(row.get("successful_runs") or 0) if isinstance(row.get("successful_runs"), (int, float, str)) else 0,
+                        "error_count": int(row.get("error_count") or 0) if isinstance(row.get("error_count"), (int, float, str)) else 0,
+                        "avg_processing_ms": int(row.get("avg_processing_ms") or 0) if isinstance(row.get("avg_processing_ms"), (int, float, str)) else 0,
                     }
             err_res = (
                 sb.table("edit_jobs")
