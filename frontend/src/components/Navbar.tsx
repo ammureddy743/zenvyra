@@ -103,7 +103,7 @@ export function Navbar() {
   return (
     <>
       <header className="sticky top-0 z-50 border-b border-zinc-200/80 dark:border-zinc-800/80 bg-white/85 dark:bg-zinc-950/85 backdrop-blur-md">
-        <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto flex h-[90px] max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           {/* Brand */}
           <Link href="/" className="flex items-center gap-2.5 group shrink-0">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-violet-600 via-fuchsia-500 to-cyan-500 text-white shadow-sm">
@@ -229,7 +229,7 @@ export function Navbar() {
                   type="button"
                   onClick={signOut}
                   aria-label="Logout"
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-zinc-200 dark:border-zinc-800 px-2.5 sm:px-3 py-2 text-xs font-semibold hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors"
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-zinc-200 dark:border-zinc-800 px-2.5 sm:px-3 py-1.5 text-xs font-semibold hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors"
                 >
                   <LogOut className="h-3.5 w-3.5" />
                   <span className="hidden sm:inline">Logout</span>
@@ -239,7 +239,7 @@ export function Navbar() {
               <button
                 type="button"
                 onClick={() => setAuthOpen(true)}
-                className="inline-flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-violet-600 to-indigo-600 px-2.5 sm:px-3.5 py-2 text-xs font-semibold text-white shadow-sm hover:opacity-95 transition-opacity"
+                className="inline-flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-violet-600 to-indigo-600 px-2.5 sm:px-3.5 py-1.5 text-xs font-semibold text-white shadow-sm hover:opacity-95 transition-opacity"
               >
                 <LogIn className="h-3.5 w-3.5" />
                 <span>Sign In</span>
