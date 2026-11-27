@@ -23,6 +23,9 @@ export const metadata: Metadata = {
   title: "Zenvyra | Photo & Video Editing Studio",
   description:
     "Edit photos, trim and crop videos, restore images, and create with AI in one browser-based creative studio.",
+  verification: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION
+    ? { google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION }
+    : undefined,
 };
 
 export default function RootLayout({

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import {
   ArrowRight,
   Layers,
@@ -222,6 +223,18 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      <footer className="border-t border-zinc-200 dark:border-zinc-800 pt-8 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-xs text-zinc-500 flex flex-wrap items-center justify-between gap-4">
+        <span>Zenvyra AI Photo &amp; Video Studio</span>
+        <div className="flex items-center gap-4">
+          <Link href="/privacy" className="hover:underline">
+            Privacy Policy
+          </Link>
+          <Link href="/terms" className="hover:underline">
+            Terms of Service
+          </Link>
+        </div>
+      </footer>
     </div>
   );
 }
