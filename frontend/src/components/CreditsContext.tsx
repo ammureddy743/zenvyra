@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect, useRef, useState } from "react";
 
 const DAILY_LIMIT = 10;
 const STORAGE_KEY = "zenvyra-daily-credits";
@@ -19,6 +19,7 @@ const CreditsContext = createContext<CreditsContextValue>({
 
 export function CreditsProvider({ children }: { children: React.ReactNode }) {
   const [credits, setCredits] = useState<number>(DAILY_LIMIT);
+  const creditsRef = useRef(DAILY_LIMIT);
 
   useEffect(() => {
     const today = new Date().toISOString().slice(0, 10);
@@ -27,7 +28,9 @@ export function CreditsProvider({ children }: { children: React.ReactNode }) {
       if (raw) {
         const parsed = JSON.parse(raw) as { date: string; remaining: number };
         if (parsed.date === today && typeof parsed.remaining === "number") {
-          setCredits(parsed.remaining);
+          const remaining = Math.max(0, Math.min(DAILY_LIMIT, parsed.remaining));
+          creditsRef.current = remaining;
+          setCredits(remaining);
           return;
         }
       }
@@ -41,8 +44,9 @@ export function CreditsProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const consumeCredit = (): boolean => {
-    if (credits <= 0) return false;
-    const next = credits - 1;
+    if (creditsRef.current <= 0) return false;
+    const next = creditsRef.current - 1;
+    creditsRef.current = next;
     setCredits(next);
     const today = new Date().toISOString().slice(0, 10);
     try {

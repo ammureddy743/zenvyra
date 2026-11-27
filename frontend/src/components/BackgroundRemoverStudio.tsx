@@ -3,6 +3,7 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   AlertTriangle,
+  Archive,
   Brush,
   CheckCircle2,
   Download,
@@ -22,6 +23,7 @@ import { BrushTouchupCanvas } from "./BrushTouchupCanvas";
 import { useCredits } from "./CreditsContext";
 import { useToolHandoff } from "./ToolHandoffContext";
 import { SendToToolBar } from "./SendToToolBar";
+import { createZip } from "@/lib/zip";
 
 const MAX_BYTES = 20 * 1024 * 1024;
 const ACCEPTED_TYPES = new Set(["image/jpeg", "image/jpg", "image/png", "image/webp"]);
@@ -32,6 +34,14 @@ type BgModel = "u2netp" | "isnet-general-use" | "birefnet-general";
 type ExportFormat = "png" | "jpeg";
 type StudioView = "compare" | "brush";
 type BackdropMode = "transparent" | "color" | "gradient" | "image";
+type BatchStatus = "queued" | "processing" | "success" | "failed";
+interface BatchItem {
+  id: string;
+  file: File;
+  status: BatchStatus;
+  resultUrl?: string;
+  error?: string;
+}
 
 const COLOR_SWATCHES = [
   "#ffffff",
@@ -151,7 +161,9 @@ export function BackgroundRemoverStudio() {
   const { credits, consumeCredit } = useCredits();
   const { consumePendingFile } = useToolHandoff();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const batchFileInputRef = useRef<HTMLInputElement>(null);
   const bgFileInputRef = useRef<HTMLInputElement>(null);
+  const batchItemsRef = useRef<BatchItem[]>([]);
 
   const [file, setFile] = useState<File | null>(null);
   const [originalUrl, setOriginalUrl] = useState<string | null>(null);
@@ -174,6 +186,9 @@ export function BackgroundRemoverStudio() {
 
   const [studioView, setStudioView] = useState<StudioView>("compare");
   const [isDragging, setIsDragging] = useState(false);
+  const [batchMode, setBatchMode] = useState(false);
+  const [batchItems, setBatchItems] = useState<BatchItem[]>([]);
+  const [isBatchProcessing, setIsBatchProcessing] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [elapsedSec, setElapsedSec] = useState(0);
   const [processingMs, setProcessingMs] = useState<number | null>(null);
@@ -182,6 +197,16 @@ export function BackgroundRemoverStudio() {
 
   useEffect(() => {
     fetch(`${API_BASE}/health`).catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    batchItemsRef.current = batchItems;
+  }, [batchItems]);
+
+  useEffect(() => () => {
+    batchItemsRef.current.forEach((item) => {
+      if (item.resultUrl) URL.revokeObjectURL(item.resultUrl);
+    });
   }, []);
 
   useEffect(() => {
@@ -324,6 +349,126 @@ export function BackgroundRemoverStudio() {
     if (file) void executeRemoval(file);
   };
 
+  const selectBatchFiles = (files: FileList | null) => {
+    if (!files?.length) return;
+    const selected = Array.from(files);
+    if (selected.length > 20) {
+      setErrorMsg("Choose up to 20 images per batch.");
+      return;
+    }
+
+    const valid: BatchItem[] = [];
+    const rejected: string[] = [];
+    selected.forEach((selectedFile, index) => {
+      if (!ACCEPTED_TYPES.has(selectedFile.type.toLowerCase())) {
+        rejected.push(`${selectedFile.name}: unsupported file type`);
+      } else if (selectedFile.size > MAX_BYTES) {
+        rejected.push(`${selectedFile.name}: larger than 20 MB`);
+      } else {
+        valid.push({
+          id: `${selectedFile.name}-${selectedFile.lastModified}-${index}`,
+          file: selectedFile,
+          status: "queued",
+        });
+      }
+    });
+
+    batchItemsRef.current.forEach((item) => {
+      if (item.resultUrl) URL.revokeObjectURL(item.resultUrl);
+    });
+    batchItemsRef.current = valid;
+    setBatchItems(valid);
+    setErrorMsg(rejected.length ? `Skipped ${rejected.join("; ")}.` : null);
+  };
+
+  const processBatchItem = async (item: BatchItem) => {
+    setBatchItems((items) => items.map((current) =>
+      current.id === item.id ? { ...current, status: "processing", error: undefined } : current
+    ));
+    try {
+      const formData = new FormData();
+      formData.append("file", item.file);
+      formData.append("model", model);
+      formData.append("export_format", "png");
+      formData.append("bg_color", bgColor);
+      formData.append("feather", String(feather));
+      formData.append("smooth", String(smooth));
+      formData.append("shift_edge", String(shiftEdge));
+
+      const response = await fetch(`${API_BASE}/api/v1/remove-background`, {
+        method: "POST",
+        body: formData,
+      });
+      if (!response.ok) {
+        const body = await response.json().catch(() => null);
+        throw new Error(body?.detail || "Could not process this image.");
+      }
+
+      const resultUrl = URL.createObjectURL(await response.blob());
+      consumeCredit();
+      setBatchItems((items) => items.map((current) =>
+        current.id === item.id
+          ? { ...current, status: "success", resultUrl, error: undefined }
+          : current
+      ));
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Could not process this image.";
+      setBatchItems((items) => items.map((current) =>
+        current.id === item.id ? { ...current, status: "failed", error: message } : current
+      ));
+    }
+  };
+
+  const runBatch = async (itemsToProcess: BatchItem[]) => {
+    if (!itemsToProcess.length || isBatchProcessing) return;
+    if (credits < itemsToProcess.length) {
+      setErrorMsg(`This batch needs ${itemsToProcess.length} credits, but you have ${credits}. Remove some images or try again after your credits reset.`);
+      return;
+    }
+    setErrorMsg(null);
+    setIsBatchProcessing(true);
+    for (const item of itemsToProcess) await processBatchItem(item);
+    setIsBatchProcessing(false);
+  };
+
+  const retryBatchItem = (item: BatchItem) => {
+    if (credits < 1) {
+      setErrorMsg("You need at least 1 credit to retry this image. Credits reset tomorrow.");
+      return;
+    }
+    setErrorMsg(null);
+    setIsBatchProcessing(true);
+    void processBatchItem(item).finally(() => setIsBatchProcessing(false));
+  };
+
+  const downloadBatchItem = (item: BatchItem) => {
+    if (!item.resultUrl) return;
+    const link = document.createElement("a");
+    link.href = item.resultUrl;
+    link.download = `${item.file.name.replace(/\.[^/.]+$/, "")}-zenvyra-cutout.png`;
+    link.click();
+  };
+
+  const downloadBatchZip = async () => {
+    const completed = batchItems.filter((item) => item.status === "success" && item.resultUrl);
+    if (!completed.length) return;
+    try {
+      const entries = await Promise.all(completed.map(async (item, index) => ({
+        name: `${String(index + 1).padStart(2, "0")}-${item.file.name.replace(/\.[^/.]+$/, "")}-cutout.png`,
+        data: await fetch(item.resultUrl!).then((response) => response.blob()),
+      })));
+      const zip = await createZip(entries);
+      const zipUrl = URL.createObjectURL(zip);
+      const link = document.createElement("a");
+      link.href = zipUrl;
+      link.download = "zenvyra-background-removal.zip";
+      link.click();
+      window.setTimeout(() => URL.revokeObjectURL(zipUrl), 1000);
+    } catch {
+      setErrorMsg("Could not create the ZIP. You can still download each result separately.");
+    }
+  };
+
   const handleGenerateAiBackdrop = async () => {
     const clean = bgPrompt.trim();
     if (clean.length < 2) {
@@ -461,6 +606,67 @@ export function BackgroundRemoverStudio() {
     GRADIENT_PRESETS.find((g) => g.id === gradientId)?.css ||
     GRADIENT_PRESETS[0].css;
 
+  if (batchMode) {
+    const queuedItems = batchItems.filter((item) => item.status === "queued");
+    const completedItems = batchItems.filter((item) => item.status === "success");
+    return (
+      <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <div className="mb-2 inline-flex items-center gap-1.5 rounded-full border border-violet-200 bg-violet-50 px-3 py-1 text-xs font-medium text-violet-700 dark:border-violet-900/60 dark:bg-violet-950/40 dark:text-violet-300">
+              <Archive className="h-3.5 w-3.5" /> Batch Background Remover
+            </div>
+            <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Process a batch of images</h1>
+            <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">Choose up to 20 JPG, PNG, or WebP images, up to 20 MB each. One credit is used for each successful result.</p>
+          </div>
+          <button type="button" onClick={() => setBatchMode(false)} className="rounded-xl border border-zinc-200 px-3.5 py-2 text-xs font-medium transition-colors hover:bg-zinc-100 dark:border-zinc-800 dark:hover:bg-zinc-900">Single image mode</button>
+        </div>
+
+        {errorMsg && <div role="alert" className="mb-5 rounded-xl border border-rose-300 bg-rose-50 p-3.5 text-sm text-rose-900 dark:border-rose-800 dark:bg-rose-950/30 dark:text-rose-200">{errorMsg}<button type="button" onClick={() => setErrorMsg(null)} className="ml-2 underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2">Dismiss</button></div>}
+
+        <div className="space-y-5 rounded-2xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900 sm:p-6">
+          <input ref={batchFileInputRef} type="file" multiple accept="image/jpeg,image/png,image/webp" className="hidden" aria-label="Choose images for batch background removal" onChange={(event) => { selectBatchFiles(event.target.files); event.target.value = ""; }} />
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="text-sm"><span className="font-semibold">Available credits: {credits}</span><span className="ml-2 text-zinc-500 dark:text-zinc-400">{batchItems.length}/20 images selected</span></div>
+            <button type="button" disabled={isBatchProcessing} onClick={() => batchFileInputRef.current?.click()} className="inline-flex min-h-10 items-center gap-2 rounded-xl bg-violet-600 px-4 text-sm font-semibold text-white transition hover:bg-violet-500 disabled:opacity-50"><ImagePlus className="h-4 w-4" />{batchItems.length ? "Choose images" : "Choose up to 20 images"}</button>
+          </div>
+
+          {batchItems.length > 0 ? <>
+            <ul className="divide-y divide-zinc-200 rounded-xl border border-zinc-200 dark:divide-zinc-800 dark:border-zinc-800">
+              {batchItems.map((item) => <li key={item.id} className="flex flex-wrap items-center gap-3 p-3 sm:p-4">
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2 text-sm font-medium">
+                    <span className="truncate">{item.file.name}</span>
+                    {item.status === "queued" && <span className="shrink-0 text-xs text-zinc-500">Queued</span>}
+                    {item.status === "processing" && <span className="shrink-0 text-xs text-violet-600 dark:text-violet-300" role="status">Processing…</span>}
+                    {item.status === "success" && <span className="shrink-0 text-xs text-emerald-600 dark:text-emerald-400">Complete</span>}
+                    {item.status === "failed" && <span className="shrink-0 text-xs text-rose-600 dark:text-rose-400">Failed</span>}
+                  </div>
+                  <div className="mt-1 text-xs text-zinc-500">{(item.file.size / (1024 * 1024)).toFixed(2)} MB</div>
+                  {item.status === "processing" && <div role="progressbar" aria-label={`Processing ${item.file.name}`} aria-valuemin={0} aria-valuemax={100} className="mt-2 h-1.5 overflow-hidden rounded-full bg-violet-100 dark:bg-violet-950"><div className="h-full w-2/3 animate-pulse rounded-full bg-violet-600" /></div>}
+                  {item.error && <p className="mt-1 text-xs text-rose-600 dark:text-rose-400">{item.error}</p>}
+                </div>
+                {item.status === "success" && <button type="button" onClick={() => downloadBatchItem(item)} className="rounded-lg border border-zinc-200 px-3 py-2 text-xs font-medium hover:bg-zinc-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-violet-500 dark:border-zinc-700 dark:hover:bg-zinc-800"><Download className="mr-1 inline h-3.5 w-3.5" />Download</button>}
+                {item.status === "failed" && <button type="button" disabled={isBatchProcessing || credits < 1} onClick={() => retryBatchItem(item)} className="rounded-lg border border-zinc-200 px-3 py-2 text-xs font-medium hover:bg-zinc-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-violet-500 disabled:opacity-50 dark:border-zinc-700 dark:hover:bg-zinc-800"><RefreshCw className="mr-1 inline h-3.5 w-3.5" />Retry</button>}
+                {!isBatchProcessing && item.status !== "processing" && <button type="button" onClick={() => {
+                  if (item.resultUrl) URL.revokeObjectURL(item.resultUrl);
+                  const remaining = batchItemsRef.current.filter((entry) => entry.id !== item.id);
+                  batchItemsRef.current = remaining;
+                  setBatchItems(remaining);
+                }} aria-label={`Remove ${item.file.name} from batch`} className="rounded-lg px-2 py-2 text-xs text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-violet-500 dark:hover:bg-zinc-800 dark:hover:text-white">Remove</button>}
+              </li>)}
+            </ul>
+            <div className="flex flex-wrap items-center gap-3">
+              <button type="button" disabled={isBatchProcessing || !queuedItems.length} onClick={() => void runBatch(queuedItems)} className="min-h-11 rounded-xl bg-gradient-to-r from-violet-600 via-fuchsia-600 to-cyan-600 px-5 text-sm font-semibold text-white shadow-sm transition-opacity hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-50">{isBatchProcessing ? "Processing batch…" : `Remove backgrounds (${queuedItems.length})`}</button>
+              {completedItems.length > 0 && <button type="button" onClick={() => void downloadBatchZip()} className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-zinc-200 px-4 text-sm font-semibold hover:bg-zinc-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-violet-500 dark:border-zinc-700 dark:hover:bg-zinc-800"><Archive className="h-4 w-4" />Download all ({completedItems.length}) as ZIP</button>}
+            </div>
+            <p className="text-xs text-zinc-500 dark:text-zinc-400">Processing is sequential. Failed images do not use a credit; retries use a credit if successful.</p>
+          </> : <div className="rounded-xl border border-dashed border-zinc-300 p-8 text-center text-sm text-zinc-500 dark:border-zinc-700">Select images to start your batch. Your originals stay on this device.</div>}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
       {/* Header */}
@@ -478,16 +684,12 @@ export function BackgroundRemoverStudio() {
           </p>
         </div>
 
-        {file && (
-          <button
-            type="button"
-            onClick={resetAll}
-            className="inline-flex items-center gap-1.5 rounded-xl border border-zinc-200 dark:border-zinc-800 px-3.5 py-2 text-xs font-medium hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors"
-          >
-            <Trash2 className="h-3.5 w-3.5" />
-            New Image
+        <div className="flex items-center gap-2">
+          <button type="button" onClick={() => { setBatchMode(true); setErrorMsg(null); }} disabled={isProcessing} className="inline-flex items-center gap-1.5 rounded-xl border border-violet-200 px-3.5 py-2 text-xs font-medium text-violet-700 transition-colors hover:bg-violet-50 disabled:opacity-50 dark:border-violet-900/60 dark:text-violet-300 dark:hover:bg-violet-950/40">
+            <Archive className="h-3.5 w-3.5" /> Batch mode
           </button>
-        )}
+          {file && <button type="button" onClick={resetAll} className="inline-flex items-center gap-1.5 rounded-xl border border-zinc-200 px-3.5 py-2 text-xs font-medium transition-colors hover:bg-zinc-100 dark:border-zinc-800 dark:hover:bg-zinc-900"><Trash2 className="h-3.5 w-3.5" />New Image</button>}
+        </div>
       </div>
 
       {/* Alerts */}
