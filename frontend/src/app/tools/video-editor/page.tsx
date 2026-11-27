@@ -1,8 +1,8 @@
 import { VideoEditorStudio } from "@/components/VideoEditorStudio";
 
 export const metadata = {
-  title: "Video Editor — Zenvyra",
-  description: "Trim and crop videos for common formats, then export from your browser.",
+  title: "Video Editor & Music Studio — Zenvyra",
+  description: "InShot-style video editor with trim, speed, filters, text overlays, and background songs.",
 };
 
 export default function VideoEditorPage() {

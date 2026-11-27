@@ -73,7 +73,7 @@ const TOOL_MENU = [
   {
     href: "/tools/video-editor",
     label: "Video Editor",
-    desc: "Trim and crop video clips",
+    desc: "InShot-style trim, songs & filters",
     icon: Film,
   },
 ];

@@ -39,7 +39,7 @@ const STUDIO_TABS: { id: StudioId; label: string; detail: string; icon: typeof S
   { id: "passport-maker", label: "ID photos", detail: "Crop for print", icon: UserSquare2 },
   { id: "image-generator", label: "Generate", detail: "Create image or video", icon: Sparkles },
   { id: "photo-editor", label: "Photo edit", detail: "Crop, color, caption", icon: ImageIcon },
-  { id: "video-editor", label: "Video edit", detail: "Trim and crop clips", icon: Film },
+  { id: "video-editor", label: "Video edit", detail: "Trim, songs & filters", icon: Film },
 ];
 
 export function LiveStudioWorkspace() {

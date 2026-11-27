@@ -98,13 +98,13 @@ export function PhotoEditorStudio() {
   const inputRef = useRef<HTMLInputElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const imageRef = useRef<HTMLImageElement | null>(null);
+  const [settings, setSettings] = useState(DEFAULT_SETTINGS);
   const settingsRef = useRef(settings);
   settingsRef.current = settings;
   const historyRef = useRef<PhotoSettings[]>([DEFAULT_SETTINGS]);
   const historyIndexRef = useRef(0);
   const [fileName, setFileName] = useState("");
   const [imageUrl, setImageUrl] = useState<string | null>(null);
-  const [settings, setSettings] = useState(DEFAULT_SETTINGS);
   const [canUndo, setCanUndo] = useState(false);
   const [canRedo, setCanRedo] = useState(false);
   const [format, setFormat] = useState<"png" | "jpeg">("png");
@@ -241,14 +241,14 @@ export function PhotoEditorStudio() {
         </button>
       ) : (
         <div className="grid overflow-hidden rounded-3xl border border-zinc-200 bg-white shadow-xl shadow-zinc-950/5 dark:border-zinc-800 dark:bg-zinc-900 lg:grid-cols-[minmax(0,1fr)_320px]">
-          <div className="flex min-h-[420px] flex-col bg-[linear-gradient(45deg,#e4e4e7_25%,transparent_25%),linear-gradient(-45deg,#e4e4e7_25%,transparent_25%),linear-gradient(45deg,transparent_75%,#e4e4e7_75%),linear-gradient(-45deg,transparent_75%,#e4e4e7_75%)] bg-[length:24px_24px] dark:bg-zinc-950">
-            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-zinc-200/70 bg-white/80 px-4 py-3 text-xs dark:border-zinc-800 dark:bg-zinc-900/80">
+          <div className="flex min-h-[440px] sm:min-h-[540px] flex-col bg-checkerboard">
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-zinc-200/70 bg-white/85 px-4 py-3 text-xs dark:border-zinc-800 dark:bg-zinc-900/85">
               <span className="max-w-[60%] truncate font-medium text-zinc-700 dark:text-zinc-200">{fileName}</span>
               <button type="button" onClick={() => inputRef.current?.click()} className="font-semibold text-violet-700 hover:text-violet-500 dark:text-violet-300">Replace image</button>
               <input ref={inputRef} type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={(event) => chooseFile(event.target.files?.[0])} />
             </div>
-            <div className="flex flex-1 items-center justify-center p-4 sm:p-8">
-              <canvas ref={canvasRef} className="max-h-[70vh] max-w-full rounded-lg object-contain shadow-2xl" aria-label="Edited photo preview" />
+            <div className="flex flex-1 items-center justify-center p-4 sm:p-6">
+              <canvas ref={canvasRef} className="h-full max-h-[65vh] w-full object-contain rounded-lg shadow-2xl" aria-label="Edited photo preview" />
             </div>
           </div>
 

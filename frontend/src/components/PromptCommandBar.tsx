@@ -21,6 +21,17 @@ function resolvePromptRoute(promptText: string): string {
   const q = raw.toLowerCase();
 
   if (
+    q.includes("edit video") ||
+    q.includes("video editor") ||
+    q.includes("add song") ||
+    q.includes("add music") ||
+    q.includes("inshot") ||
+    q.includes("trim video")
+  ) {
+    return "/tools/video-editor";
+  }
+
+  if (
     q.startsWith("edit video") ||
     q.includes("trim video") ||
     q.includes("crop video") ||
