@@ -332,8 +332,29 @@ export function VideoEditorStudio() {
               {videoUrl ? <>{thumbs.length > 0 && <div className="absolute inset-0 grid grid-cols-8">{thumbs.map((src, idx) => <img key={idx} src={src} alt="" className="h-full w-full object-cover" />)}</div>}<div className="absolute inset-0 flex items-end bg-gradient-to-t from-black/70 via-transparent to-transparent px-2.5 pb-1 text-[10px] font-medium text-white"><Film className="mr-1.5 h-3 w-3 shrink-0" /><span className="truncate">{videoName}</span></div><div className="absolute inset-y-0 border-x-2 border-[#c4a8ff] bg-[#aa91ff]/15" style={{ left: `${duration ? trimStart / duration * 100 : 0}%`, right: `${duration ? 100 - (trimEnd || duration) / duration * 100 : 0}%` }} /></> : <button type="button" onClick={() => fileRef.current?.click()} className="flex h-full w-full items-center justify-center gap-2 text-xs text-white/80"><ImagePlus className="h-4 w-4" />Import a video to fill the timeline</button>}
               <div className="pointer-events-none absolute inset-y-0 z-10 w-0.5 bg-white shadow-[0_0_8px_#fff]" style={{ left: `${duration ? current / duration * 100 : 0}%` }} />
             </div></div>
-            <div className="flex min-w-[500px] items-center gap-2"><span className="w-[86px] shrink-0 text-xs text-[#a5a5b1]">Text</span><div className="h-8 flex-1 overflow-hidden rounded-lg border border-[#37324e] bg-[#282341]">{caption && <div className="flex h-full items-center px-3 text-xs text-[#d0c0ff]">{caption}</div>}</div></div>
-            <div className="flex min-w-[500px] items-center gap-2"><span className="w-[86px] shrink-0 text-xs text-[#a5a5b1]">Audio</span><div className="h-8 flex-1 overflow-hidden rounded-lg border border-[#24493f] bg-[#16352e]">{audioName && <div className="flex h-full items-center gap-2 px-3 text-xs text-emerald-200"><Music2 className="h-3.5 w-3.5" />{audioName}</div>}</div></div>
+            <div className="flex min-w-[500px] items-center gap-2"><span className="w-[86px] shrink-0 text-xs text-[#a5a5b1]">Text</span><div className="relative h-9 flex-1 overflow-hidden rounded-lg border border-[#37324e] bg-[#1e1a30]" onClick={(e) => { if (!duration || !videoRef.current || !caption) return; const rect = e.currentTarget.getBoundingClientRect(); const time = ((e.clientX - rect.left) / rect.width) * duration; videoRef.current.currentTime = time; setCurrent(time); }}>
+              {caption ? (
+                <div className="absolute inset-y-0 flex items-center justify-between gap-2 rounded-lg border border-[#aa91ff]/60 bg-[#6d4aff]/35 px-3 text-xs font-medium text-[#ede7ff]" style={{ left: `${duration ? trimStart / duration * 100 : 0}%`, right: `${duration ? 100 - (trimEnd || duration) / duration * 100 : 0}%` }}>
+                  <span className="flex items-center gap-1.5 truncate"><Type className="h-3.5 w-3.5 shrink-0 text-[#c4a8ff]" /><span className="truncate">{caption}</span></span>
+                  <button type="button" onClick={(e) => { e.stopPropagation(); setCaption(""); setSaved(false); }} aria-label="Remove caption" className="shrink-0 text-[11px] text-white/70 hover:text-white">×</button>
+                </div>
+              ) : (
+                <button type="button" onClick={() => setPanel("Text")} className="flex h-full w-full items-center justify-center gap-1.5 text-xs text-[#9c92c9] hover:bg-[#282341] hover:text-white transition-colors"><Type className="h-3.5 w-3.5" />Add text caption</button>
+              )}
+              <div className="pointer-events-none absolute inset-y-0 z-10 w-0.5 bg-white shadow-[0_0_8px_#fff]" style={{ left: `${duration ? current / duration * 100 : 0}%` }} />
+            </div></div>
+            <div className="flex min-w-[500px] items-center gap-2"><span className="w-[86px] shrink-0 text-xs text-[#a5a5b1]">Audio</span><div className="relative h-9 flex-1 overflow-hidden rounded-lg border border-[#24493f] bg-[#112620]" onClick={(e) => { if (!duration || !videoRef.current || !audioName) return; const rect = e.currentTarget.getBoundingClientRect(); const time = ((e.clientX - rect.left) / rect.width) * duration; videoRef.current.currentTime = time; setCurrent(time); }}>
+              {audioName ? (
+                <div className="absolute inset-0 flex items-center justify-between gap-2 rounded-lg border border-emerald-400/50 bg-emerald-600/30 px-3 text-xs font-medium text-emerald-100">
+                  <span className="flex items-center gap-2 truncate"><Music2 className="h-3.5 w-3.5 shrink-0 text-emerald-300" /><span className="truncate">{audioName}</span></span>
+                  <span className="hidden sm:flex items-center gap-0.5 opacity-60" aria-hidden="true">{[35, 70, 50, 90, 60, 80, 40, 75, 55, 85, 45, 65].map((h, i) => <span key={i} className="w-0.5 rounded-full bg-emerald-300" style={{ height: `${Math.round(h * 0.22)}px` }} />)}</span>
+                  <button type="button" onClick={(e) => { e.stopPropagation(); setAudioUrl(null); setAudioName(""); setSaved(false); }} aria-label="Remove audio" className="shrink-0 text-[11px] text-white/70 hover:text-white">×</button>
+                </div>
+              ) : (
+                <button type="button" onClick={() => audioFileRef.current?.click()} className="flex h-full w-full items-center justify-center gap-1.5 text-xs text-emerald-300/80 hover:bg-[#16352e] hover:text-emerald-100 transition-colors"><Music2 className="h-3.5 w-3.5" />Import audio / background song</button>
+              )}
+              <div className="pointer-events-none absolute inset-y-0 z-10 w-0.5 bg-white shadow-[0_0_8px_#fff]" style={{ left: `${duration ? current / duration * 100 : 0}%` }} />
+            </div></div>
           </div>
         </section>
       </div>
