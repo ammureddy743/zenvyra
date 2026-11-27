@@ -19,6 +19,11 @@ const FILTERS = [
   { name: "Original", css: "none" }, { name: "Vivid", css: "saturate(1.5) contrast(1.08)" },
   { name: "Warm", css: "sepia(.25) saturate(1.25)" }, { name: "Cool", css: "hue-rotate(15deg) saturate(1.15)" },
   { name: "Cinema", css: "contrast(1.2) saturate(.85) brightness(.94)" }, { name: "Mono", css: "grayscale(1) contrast(1.12)" },
+  { name: "Vintage", css: "sepia(.45) contrast(.92) saturate(.8)" }, { name: "Noir", css: "grayscale(1) contrast(1.45) brightness(.9)" },
+  { name: "Fade", css: "contrast(.85) brightness(1.08) saturate(.8)" }, { name: "Golden", css: "sepia(.32) saturate(1.55) brightness(1.05)" },
+  { name: "Dreamy", css: "saturate(1.2) brightness(1.12) contrast(.9)" }, { name: "Matte", css: "contrast(.88) saturate(.88) brightness(1.04)" },
+  { name: "Punch", css: "contrast(1.3) saturate(1.35)" }, { name: "Arctic", css: "hue-rotate(185deg) saturate(1.15) contrast(1.05)" },
+  { name: "Rose", css: "sepia(.18) hue-rotate(320deg) saturate(1.25)" }, { name: "Dusty", css: "sepia(.2) saturate(.72) contrast(.95)" },
 ];
 const fmt = (time: number) => {
   const s = Math.max(0, Math.floor(time || 0));
