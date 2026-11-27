@@ -35,6 +35,7 @@ export function VideoEditorStudio() {
   const musicSourceRef = useRef<MediaElementAudioSourceNode | null>(null);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const [videoName, setVideoName] = useState("");
+  const [thumbs, setThumbs] = useState<string[]>([]);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [audioName, setAudioName] = useState("");
   const [duration, setDuration] = useState(0);
@@ -80,9 +81,50 @@ export function VideoEditorStudio() {
     if (!file) return;
     if (!file.type.startsWith("video/")) { setError("Choose a valid video file."); return; }
     setError("");
+    setThumbs([]);
     setVideoUrl(URL.createObjectURL(file)); setVideoName(file.name);
     setCurrent(0); setPlaying(false); setTrimStart(0); setTrimEnd(0); setSaved(false);
   }, []);
+
+  useEffect(() => {
+    if (!videoUrl) return;
+    let cancelled = false;
+    const probe = document.createElement("video");
+    probe.muted = true;
+    probe.playsInline = true;
+    probe.preload = "auto";
+    probe.src = videoUrl;
+
+    const extract = async () => {
+      await new Promise<void>((res) => {
+        probe.onloadeddata = () => res();
+        probe.onerror = () => res();
+      });
+      const dur = probe.duration || 0;
+      if (cancelled || !dur || !probe.videoWidth) return;
+      const count = 8;
+      const canvas = document.createElement("canvas");
+      canvas.width = 120;
+      canvas.height = 68;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
+
+      const list: string[] = [];
+      for (let i = 0; i < count; i++) {
+        if (cancelled) return;
+        const target = (dur * (i + 0.2)) / count;
+        await new Promise<void>((res) => {
+          probe.onseeked = () => res();
+          probe.currentTime = Math.min(dur - 0.05, Math.max(0, target));
+        });
+        ctx.drawImage(probe, 0, 0, canvas.width, canvas.height);
+        list.push(canvas.toDataURL("image/jpeg", 0.65));
+      }
+      if (!cancelled) setThumbs(list);
+    };
+    void extract();
+    return () => { cancelled = true; };
+  }, [videoUrl]);
   const importAudio = (file?: File) => {
     if (!file) return;
     if (!file.type.startsWith("audio/")) { setError("Choose a valid audio file."); return; }
@@ -287,7 +329,7 @@ export function VideoEditorStudio() {
           <div className="space-y-1.5 overflow-x-auto px-3 py-3 sm:px-5">
             <div className="ml-[94px] flex min-w-[500px] justify-between pr-2 text-[10px] text-[#777987]">{Array.from({ length: 7 }, (_, i) => <span key={i}>{fmt(duration * i / 6)}</span>)}</div>
             <div className="flex min-w-[500px] items-center gap-2"><span className="w-[86px] shrink-0 text-xs text-[#a5a5b1]">Main video</span><div className="relative h-[52px] flex-1 overflow-hidden rounded-lg border border-[#545067] bg-gradient-to-r from-[#694e78] via-[#387f9a] to-[#bf8b55]" onClick={(e) => { if (!duration || !videoRef.current) return; const rect = e.currentTarget.getBoundingClientRect(); const time = ((e.clientX - rect.left) / rect.width) * duration; videoRef.current.currentTime = time; setCurrent(time); }}>
-              {videoUrl ? <><div className="absolute inset-0 flex items-center gap-2 bg-black/20 px-3 text-xs font-medium text-white"><Film className="h-4 w-4 shrink-0" /><span className="truncate">{videoName}</span></div><div className="absolute inset-y-0 border-x-2 border-[#c4a8ff] bg-[#aa91ff]/10" style={{ left: `${duration ? trimStart / duration * 100 : 0}%`, right: `${duration ? 100 - (trimEnd || duration) / duration * 100 : 0}%` }} /></> : <button type="button" onClick={() => fileRef.current?.click()} className="flex h-full w-full items-center justify-center gap-2 text-xs text-white/80"><ImagePlus className="h-4 w-4" />Import a video to fill the timeline</button>}
+              {videoUrl ? <>{thumbs.length > 0 && <div className="absolute inset-0 grid grid-cols-8">{thumbs.map((src, idx) => <img key={idx} src={src} alt="" className="h-full w-full object-cover" />)}</div>}<div className="absolute inset-0 flex items-end bg-gradient-to-t from-black/70 via-transparent to-transparent px-2.5 pb-1 text-[10px] font-medium text-white"><Film className="mr-1.5 h-3 w-3 shrink-0" /><span className="truncate">{videoName}</span></div><div className="absolute inset-y-0 border-x-2 border-[#c4a8ff] bg-[#aa91ff]/15" style={{ left: `${duration ? trimStart / duration * 100 : 0}%`, right: `${duration ? 100 - (trimEnd || duration) / duration * 100 : 0}%` }} /></> : <button type="button" onClick={() => fileRef.current?.click()} className="flex h-full w-full items-center justify-center gap-2 text-xs text-white/80"><ImagePlus className="h-4 w-4" />Import a video to fill the timeline</button>}
               <div className="pointer-events-none absolute inset-y-0 z-10 w-0.5 bg-white shadow-[0_0_8px_#fff]" style={{ left: `${duration ? current / duration * 100 : 0}%` }} />
             </div></div>
             <div className="flex min-w-[500px] items-center gap-2"><span className="w-[86px] shrink-0 text-xs text-[#a5a5b1]">Text</span><div className="h-8 flex-1 overflow-hidden rounded-lg border border-[#37324e] bg-[#282341]">{caption && <div className="flex h-full items-center px-3 text-xs text-[#d0c0ff]">{caption}</div>}</div></div>
